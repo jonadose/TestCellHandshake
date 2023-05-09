@@ -1,10 +1,6 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json;
 using TestCellHandshake.MqttService.Channels.MqttLc;
 using TestCellHandshake.MqttService.Commands;
 using TestCellHandshake.MqttService.MqttService.Service;
@@ -85,7 +81,8 @@ namespace TestCellHandshake.MqttService.MqttService.Workers
         private Task PublishDeviceId(DeviceIdCommand? deviceIdCommand)
         {
             ArgumentNullException.ThrowIfNull(deviceIdCommand);
-            _mqttService.PublishAsync("Mcc/DeviceId", $"{deviceIdCommand}");
+            var payload = JsonSerializer.Serialize(deviceIdCommand);
+            _mqttService.PublishAsync("Mcc/DeviceId", $"{payload}");
             return Task.CompletedTask;
         }
     }
