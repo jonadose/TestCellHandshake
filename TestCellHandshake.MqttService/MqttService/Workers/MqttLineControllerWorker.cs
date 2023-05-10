@@ -60,29 +60,48 @@ namespace TestCellHandshake.MqttService.MqttService.Workers
         private Task PublishNewDataRec(NewDataRecCommand? newDataRecCommand)
         {
             ArgumentNullException.ThrowIfNull(newDataRecCommand);
-            _mqttService.PublishAsync("Mcc/NewDataRec", $"{newDataRecCommand.NewDataRec}");
+            var payload = newDataRecCommand.NewDataRec.ToString().ToLower();
+            string topic = "TestCell/Tester/PLC/DataBlocksGlobal/DataLC/LC/Prg/Data";
+            string tagAddress = "\"TestCell.Tester.PLC.DataBlocksGlobal.DataLC.LC.Prg.Data.NewDataRec\"";
+            string payloadKepwareFormat = $"[{{ \"id\": {tagAddress},\"v\": {payload}}}]";
+
+            _mqttService.PublishAsync(topic, payloadKepwareFormat);
             return Task.CompletedTask;
         }
 
         private Task PublishDeviceDestination(DeviceDestinationCommand? deviceDestinationCommand)
         {
             ArgumentNullException.ThrowIfNull(deviceDestinationCommand);
-            _mqttService.PublishAsync("Mcc/DeviceDestination", $"{deviceDestinationCommand}");
+            var payload = deviceDestinationCommand.DeviceDest;
+            string topic = "TestCell/Tester/PLC/DataBlocksGlobal/DataLC/LC/Prg/Data";
+            string tagAddress = "\"TestCell.Tester.PLC.DataBlocksGlobal.DataLC.LC.Prg.Data.DeviceDest\"";
+            string payloadKepwareFormat = $"[{{ \"id\": {tagAddress},\"v\": {payload}}}]";
+
+            _mqttService.PublishAsync(topic, payloadKepwareFormat);
             return Task.CompletedTask;
         }
 
         private Task PublishDeviceType(DeviceTypeCommand? deviceTypeCommand)
         {
             ArgumentNullException.ThrowIfNull(deviceTypeCommand);
-            _mqttService.PublishAsync("Mcc/DeviceType", $"{deviceTypeCommand}");
+            var payload = deviceTypeCommand.DeviceType;
+            string topic = "TestCell/Tester/PLC/DataBlocksGlobal/DataLC/LC/Prg/Data";
+            string tagAddress = "\"TestCell.Tester.PLC.DataBlocksGlobal.DataLC.LC.Prg.Data.DeviceType\"";
+            string payloadKepwareFormat = $"[{{ \"id\": {tagAddress},\"v\": {payload}}}]";
+
+            _mqttService.PublishAsync(topic, payloadKepwareFormat);
             return Task.CompletedTask;
         }
 
         private Task PublishDeviceId(DeviceIdCommand? deviceIdCommand)
         {
             ArgumentNullException.ThrowIfNull(deviceIdCommand);
-            var payload = JsonSerializer.Serialize(deviceIdCommand);
-            _mqttService.PublishAsync("Mcc/DeviceId", $"{payload}");
+            var payload = JsonSerializer.Serialize(deviceIdCommand.DeviceID.ToString());
+            string topic = "TestCell/Tester/PLC/DataBlocksGlobal/DataLC/LC/Prg/Data";
+            string tagAddress = "\"TestCell.Tester.PLC.DataBlocksGlobal.DataLC.LC.Prg.Data.DeviceID\"";
+            string payloadKepwareFormat = $"[{{ \"id\": {tagAddress},\"v\": {payload}}}]";
+
+            _mqttService.PublishAsync(topic, payloadKepwareFormat);
             return Task.CompletedTask;
         }
     }
