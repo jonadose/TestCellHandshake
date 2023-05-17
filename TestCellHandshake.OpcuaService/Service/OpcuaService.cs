@@ -5,9 +5,9 @@ using TestCellHandshake.OpcuaService.Configuration;
 
 namespace TestCellHandshake.OpcuaService.Service
 {
-    public class OpcuaService
+    public class OpcuaService : IOpcuaService
     {
-        private OpcClient _opcClient;
+        private OpcClient? _opcClient;
         private readonly ILogger<OpcuaService> _logger;
         private readonly IOptionsMonitor<OpcuaConfig> _opcuaConfig;
 
@@ -39,7 +39,7 @@ namespace TestCellHandshake.OpcuaService.Service
 
         public void Publish(string tag, string payload)
         {
-
+            _logger.LogInformation("OpcuaClient Publishing tag: {tag} with payload: {payload}", tag, payload);
         }
 
     }

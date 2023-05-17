@@ -5,6 +5,8 @@ using TestCellHandshake.MqttService.MqttService.Configuration;
 using TestCellHandshake.MqttService.MqttService.Service;
 using TestCellHandshake.MqttService.MqttService.Workers;
 using TestCellHandshake.OpcuaService.Configuration;
+using TestCellHandshake.OpcuaService.Service;
+using TestCellHandshake.OpcuaService.Worker;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +17,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Mqtt Services
 builder.Services.AddSingleton<IMqttService, MqttService>();
 builder.Services.AddSingleton<IMainCommandChannel, MainCommandChannel>();
 builder.Services.AddSingleton<IMainMqttCommandChannel, MainMqttCommandChannel>();
@@ -22,6 +25,10 @@ builder.Services.Configure<MqttConfig>(builder.Configuration.GetSection(MqttConf
 builder.Services.Configure<OpcuaConfig>(builder.Configuration.GetSection(OpcuaConfig.OpcuaSection));
 builder.Services.AddHostedService<MqttLineControllerWorker>();
 builder.Services.AddHostedService<MainWorker>();
+
+// Opcua Services
+builder.Services.AddSingleton<IOpcuaService, OpcuaService>();
+builder.Services.AddHostedService<OpcuaTestCellWorker>();
 
 var app = builder.Build();
 

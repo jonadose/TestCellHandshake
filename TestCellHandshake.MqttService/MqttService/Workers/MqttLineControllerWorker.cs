@@ -30,7 +30,7 @@ namespace TestCellHandshake.MqttService.MqttService.Workers
             _logger.LogInformation("Starting MqttLineControllerWorker");
 
             // Connect to mqtt broker 
-            _mqttService.ConnectAsync();
+            await _mqttService.ConnectAsync();
 
             if (_mqttService.IsConnected())
             {

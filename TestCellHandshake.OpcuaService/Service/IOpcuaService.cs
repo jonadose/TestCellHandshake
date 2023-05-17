@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace TestCellHandshake.OpcuaService.Service
 {
-    internal interface IOpcuaService
+    public interface IOpcuaService
     {
+        public void InitializeClient();
+        public void Publish(string tag, string payload);
     }
 }
