@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
-using TestCellHandshake.MqttService.Channels.MqttLc;
-using TestCellHandshake.MqttService.Commands;
+using TestCellHandshake.MqttService.Channels.LineController;
+using TestCellHandshake.MqttService.Commands.LineController;
 using TestCellHandshake.MqttService.MqttService.Service;
 
 namespace TestCellHandshake.MqttService.MqttService.Workers

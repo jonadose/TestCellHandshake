@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using TestCellHandshake.MqttService.Channels;
-using TestCellHandshake.MqttService.Commands;
+using TestCellHandshake.MqttService.Commands.LineController;
 
 namespace TestCellHandshake.Controllers
 {

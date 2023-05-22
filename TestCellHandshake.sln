@@ -9,8 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestCellHandshake.MqttServi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MqttBroker", "MqttBroker\MqttBroker.csproj", "{425F97D6-EC73-4B05-82DF-8C09ADCEDA9C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestCellHandshake.OpcuaService", "TestCellHandshake.OpcuaService\TestCellHandshake.OpcuaService.csproj", "{5595C4A7-D4D2-4442-A485-51342AE97E88}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,10 +27,6 @@ Global
 		{425F97D6-EC73-4B05-82DF-8C09ADCEDA9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{425F97D6-EC73-4B05-82DF-8C09ADCEDA9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{425F97D6-EC73-4B05-82DF-8C09ADCEDA9C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5595C4A7-D4D2-4442-A485-51342AE97E88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5595C4A7-D4D2-4442-A485-51342AE97E88}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5595C4A7-D4D2-4442-A485-51342AE97E88}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5595C4A7-D4D2-4442-A485-51342AE97E88}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

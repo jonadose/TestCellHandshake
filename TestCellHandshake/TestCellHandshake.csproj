@@ -13,7 +13,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TestCellHandshake.MqttService\TestCellHandshake.MqttService.csproj" />
-    <ProjectReference Include="..\TestCellHandshake.OpcuaService\TestCellHandshake.OpcuaService.csproj" />
   </ItemGroup>
 
 </Project>

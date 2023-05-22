@@ -1,7 +1,7 @@
 ﻿using System.Threading.Channels;
 using TestCellHandshake.MqttService.Commands;
 
-namespace TestCellHandshake.MqttService.Channels.MqttLc
+namespace TestCellHandshake.MqttService.Channels.LineController
 {
     public interface IMainMqttCommandChannel
     {

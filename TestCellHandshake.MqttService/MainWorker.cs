@@ -1,8 +1,10 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using TestCellHandshake.MqttService.Channels;
-using TestCellHandshake.MqttService.Channels.MqttLc;
-using TestCellHandshake.MqttService.Commands;
+using TestCellHandshake.MqttService.Channels.LineController;
+using TestCellHandshake.MqttService.Channels.TestCell;
+using TestCellHandshake.MqttService.Commands.LineController;
+using TestCellHandshake.MqttService.Commands.TestCell;
 
 namespace TestCellHandshake.MqttService
 {
@@ -11,12 +13,17 @@ namespace TestCellHandshake.MqttService
         private readonly ILogger<MainWorker> _logger;
         private readonly IMainCommandChannel _mainCommandChannel;
         private readonly IMainMqttCommandChannel _mainMqttCommandChannel;
+        private readonly ITestCellChannel _testCellChannel;
 
-        public MainWorker(ILogger<MainWorker> logger, IMainCommandChannel mainCommandChannel, IMainMqttCommandChannel mainMqttCommandChannel)
+        public MainWorker(ILogger<MainWorker> logger,
+            IMainCommandChannel mainCommandChannel,
+            IMainMqttCommandChannel mainMqttCommandChannel,
+            ITestCellChannel testCellChannel)
         {
             _logger = logger;
             _mainCommandChannel = mainCommandChannel;
             _mainMqttCommandChannel = mainMqttCommandChannel;
+            _testCellChannel = testCellChannel;
         }
 
 
@@ -33,36 +40,58 @@ namespace TestCellHandshake.MqttService
                     DeviceTypeCommand => DeviceTypeMqttCommandHandler(message as DeviceTypeCommand),
                     DeviceDestinationCommand => DeviceDestinationMqttCommandHandler(message as DeviceDestinationCommand),
                     NewDataRecCommand => NewDataRecMqttCommandHandler(message as NewDataRecCommand),
+                    ReqNewDataCommand => ReqNewDataMqttCommandHandler(message as ReqNewDataCommand),
+                    ScannedDataCommand => ScannedDataMqttCommandHandler(message as ScannedDataCommand),
                     _ => throw new NotImplementedException()
                 };
             }
         }
 
-        private Task NewDataRecMqttCommandHandler(NewDataRecCommand command)
+        private Task ScannedDataMqttCommandHandler(ScannedDataCommand? scannedDataCommand)
         {
-            _logger.LogInformation("NewDataRecCommand {command} added to channel: {channel}", command.ToString(), nameof(_mainMqttCommandChannel));
-            _mainMqttCommandChannel.AddCommandAsync(command);
+            ArgumentNullException.ThrowIfNull(scannedDataCommand);
+            _logger.LogInformation("ScannedDataCommand {command} added to channel: {channel}", scannedDataCommand.ToString(), nameof(_testCellChannel));
+            _testCellChannel.AddCommandAsync(scannedDataCommand);
             return Task.CompletedTask;
         }
 
-        private Task DeviceDestinationMqttCommandHandler(DeviceDestinationCommand command)
+        private Task ReqNewDataMqttCommandHandler(ReqNewDataCommand? reqNewDataCommand)
         {
-            _logger.LogInformation("DeviceDestinationCommand {command} added to channel: {channel}", command.ToString(), nameof(_mainMqttCommandChannel));
-            _mainMqttCommandChannel.AddCommandAsync(command);
+            ArgumentNullException.ThrowIfNull(reqNewDataCommand);
+            _logger.LogInformation("ReqNewDataCommand {command} added to channel: {channel}", reqNewDataCommand.ToString(), nameof(_testCellChannel));
+            _testCellChannel.AddCommandAsync(reqNewDataCommand);
             return Task.CompletedTask;
         }
 
-        private Task DeviceTypeMqttCommandHandler(DeviceTypeCommand command)
+        private Task NewDataRecMqttCommandHandler(NewDataRecCommand? newDataRecCommand)
         {
-            _logger.LogInformation("DeviceTypeCommand {command} added to channel: {channel}", command.ToString(), nameof(_mainMqttCommandChannel));
-            _mainMqttCommandChannel.AddCommandAsync(command);
+            ArgumentNullException.ThrowIfNull(newDataRecCommand);
+            _logger.LogInformation("NewDataRecCommand {command} added to channel: {channel}", newDataRecCommand.ToString(), nameof(_mainMqttCommandChannel));
+            _mainMqttCommandChannel.AddCommandAsync(newDataRecCommand);
             return Task.CompletedTask;
         }
 
-        private Task DeviceIdMqttCommandHandler(DeviceIdCommand command)
+        private Task DeviceDestinationMqttCommandHandler(DeviceDestinationCommand? deviceDestinationCommand)
         {
-            _logger.LogInformation("DeviceIdCommand {command} added to channel: {channel}", command.ToString(), nameof(_mainMqttCommandChannel));
-            _mainMqttCommandChannel.AddCommandAsync(command);
+            ArgumentNullException.ThrowIfNull(deviceDestinationCommand);
+            _logger.LogInformation("DeviceDestinationCommand {command} added to channel: {channel}", deviceDestinationCommand.ToString(), nameof(_mainMqttCommandChannel));
+            _mainMqttCommandChannel.AddCommandAsync(deviceDestinationCommand);
+            return Task.CompletedTask;
+        }
+
+        private Task DeviceTypeMqttCommandHandler(DeviceTypeCommand? deviceTypeCommand)
+        {
+            ArgumentNullException.ThrowIfNull(deviceTypeCommand);
+            _logger.LogInformation("DeviceTypeCommand {command} added to channel: {channel}", deviceTypeCommand.ToString(), nameof(_mainMqttCommandChannel));
+            _mainMqttCommandChannel.AddCommandAsync(deviceTypeCommand);
+            return Task.CompletedTask;
+        }
+
+        private Task DeviceIdMqttCommandHandler(DeviceIdCommand? deviceIdCommand)
+        {
+            ArgumentNullException.ThrowIfNull(deviceIdCommand);
+            _logger.LogInformation("DeviceIdCommand {command} added to channel: {channel}", deviceIdCommand.ToString(), nameof(_mainMqttCommandChannel));
+            _mainMqttCommandChannel.AddCommandAsync(deviceIdCommand);
             return Task.CompletedTask;
         }
     }
