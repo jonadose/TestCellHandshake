@@ -1,0 +1,85 @@
+# For more info on HTTP files go to https://aka.ms/vs/httpfile
+
+POST https://localhost:7074/TestCell/ReqNewDataCommand
+Content-Type application/json
+
+{
+  "reqNewData": true
+}
+
+ 
+
+###
+
+POST https://localhost:7074/TestCell/ReqNewDataCommand
+Content-Type application/json
+
+{
+  "reqNewData": false
+}
+
+ 
+###
+
+POST https://localhost:7074/TestCell/ScannedDataCommand
+Content-Type application/json
+
+{
+  "scannedData": "UpdatedString"
+}
+
+ 
+###
+
+POST https://localhost:7074/LineController/DeviceIdCommand
+Content-Type application/json
+
+{
+  "deviceID": "136gb192384"
+}
+
+ 
+###
+
+
+POST https://localhost:7074/LineController/DeviceTypeCommand
+Content-Type application/json
+
+{
+  "deviceType": 2
+}
+
+ 
+###
+
+POST https://localhost:7074/LineController/DeviceDestinationCommand
+Content-Type application/json
+
+{
+  "deviceDest": 4
+}
+
+ 
+###
+
+POST https://localhost:7074/LineController/NewDataRecCommand
+Content-Type application/json
+
+{
+  "newDataRec": true
+}
+
+ 
+###
+
+POST https://localhost:7074/LineController/NewDataRecCommand
+Content-Type application/json
+
+{
+  "newDataRec": false
+}
+
+
+###
+
+POST https://localhost:7074/LineController/ResetAllTags
