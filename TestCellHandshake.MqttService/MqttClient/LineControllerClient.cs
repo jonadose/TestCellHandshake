@@ -1,23 +1,21 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MQTTnet;
-using MQTTnet.Client;
-using System.Text;
-using TestCellHandshake.MqttService.MqttClient.PayloadParsers;
+using TestCellHandshake.MqttService.MqttClient.ClientService;
 
 namespace TestCellHandshake.MqttService.MqttClient
 {
     public class LineControllerClient : BackgroundService
     {
-        private IMqttClient? _mqttClient;
         private readonly ILogger<LineControllerClient> _logger;
-        private readonly IPayloadParser _payloadParser;
+
+        private readonly IMqttClientService _mqttClientService;
 
         public LineControllerClient(ILogger<LineControllerClient> logger,
-            IPayloadParser payloadParser)
+
+            IMqttClientService mqttClientService)
         {
             _logger = logger;
-            _payloadParser = payloadParser;
+            _mqttClientService = mqttClientService;
         }
 
 
@@ -25,56 +23,29 @@ namespace TestCellHandshake.MqttService.MqttClient
         {
             _logger.LogInformation("Starting LineControllerClient");
 
-            var factory = new MqttFactory();
-            using (_mqttClient = factory.CreateMqttClient())
+            try
             {
-                var mqttClientOptions = new MqttClientOptionsBuilder()
-                .WithClientId("LineControllerClient")
-                .WithTcpServer("127.0.0.1")
-                .WithCleanSession(true)
-                .Build();
+                // Connect to mqtt broker
+                await _mqttClientService.ConnectAsync();
 
-                _mqttClient.ApplicationMessageReceivedAsync += HandleApplicationMessageReceivedAsync;
+                if (_mqttClientService.IsConnected())
+                {
+                    _logger.LogInformation("MqttClientService is connected");
+                }
 
-                await _mqttClient.ConnectAsync(mqttClientOptions, CancellationToken.None);
-
-                var mqttSubscribeOptions = CreateMqttSubscribeOptions();
-
-                var response = await _mqttClient.SubscribeAsync(mqttSubscribeOptions, CancellationToken.None);
-                _logger.LogInformation("MQTT client subscribed to topic.");
-                _logger.LogInformation($"{response}");
+                // Subscribe to topic
+                await _mqttClientService.SubscribeAsync("iotgateway/linecontroller");
 
                 while (!stoppingToken.IsCancellationRequested)
                 {
                     await Task.Delay(Timeout.Infinite, stoppingToken);
+                    await _mqttClientService.UnsubscribeAsync("iotgateway/linecontroller");
                 }
             }
-        }
-
-
-        private MqttClientSubscribeOptions CreateMqttSubscribeOptions()
-        {
-            return new MqttClientSubscribeOptionsBuilder()
-                .WithTopicFilter(
-                    filterBuilder =>
-                    {
-                        filterBuilder
-                        .WithTopic("iotgateway/linecontroller");
-                    })
-                .Build();
-        }
-
-
-        private Task HandleApplicationMessageReceivedAsync(MqttApplicationMessageReceivedEventArgs eventArgs)
-        {
-            DateTime currentTime = DateTime.Now;
-            string formattedTime = currentTime.ToString("HH:mm:ss.fff");
-            _logger.LogInformation($"Received application message from topic: {eventArgs.ApplicationMessage.Topic}. Timestamp: {formattedTime}.");
-            _logger.LogInformation("Payload: " + Encoding.UTF8.GetString(eventArgs.ApplicationMessage.PayloadSegment));
-
-            var payload = _payloadParser.ParsePayloadSegment(eventArgs.ApplicationMessage.PayloadSegment);
-            _logger.LogInformation("Parsed payload.TagAddress: {address}, value : {value}", payload.TagAddress, payload.Value);
-            return Task.CompletedTask;
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in LineControllerClient ExecuteAsync.");
+            }
         }
     }
 }

@@ -23,8 +23,6 @@ namespace TestCellHandshake.MqttService.MqttService.Workers
         }
 
 
-
-
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             _logger.LogInformation("Starting MqttLineControllerWorker");
