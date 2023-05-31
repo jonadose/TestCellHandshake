@@ -8,7 +8,7 @@ namespace TestCellHandshake.MqttService.MqttClient.ClientService
         Task SubscribeAsync(string topic);
         Task UnsubscribeAsync(string topic);
         void MethodThatTakesAction(Func<MqttApplicationMessageReceivedEventArgs, Task> func);
-        Task HandleApplicationMessageReceivedAsync(MqttApplicationMessageReceivedEventArgs eventArgs);
+        Task HandleApplicationMessageReceived(MqttApplicationMessageReceivedEventArgs eventArgs);
         bool IsConnected();
     }
 }

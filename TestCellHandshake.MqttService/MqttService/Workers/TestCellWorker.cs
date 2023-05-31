@@ -46,6 +46,8 @@ namespace TestCellHandshake.MqttService.MqttService.Workers
                     _ => throw new NotImplementedException()
 
                 };
+
+                await messageTask;
             }
         }
 

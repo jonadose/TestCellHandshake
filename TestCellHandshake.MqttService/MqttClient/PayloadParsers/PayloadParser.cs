@@ -12,12 +12,13 @@ namespace TestCellHandshake.MqttService.MqttClient.PayloadParsers
             _logger = logger;
         }
 
-        public ParsedPayload ParsePayloadSegment(ReadOnlyMemory<byte> payloadSegment)
+        public List<ParsedPayload> ParsePayloadSegment(ReadOnlyMemory<byte> payloadSegment)
         {
             string payloadString = Encoding.UTF8.GetString(payloadSegment.Span);
 
             JsonElement parsedJson = JsonDocument.Parse(payloadString).RootElement;
-            ParsedPayload parsedPayload = new ParsedPayload();
+            ParsedPayload parsedPayload = new();
+            List<ParsedPayload> parsedPayloadList = new();
 
             try
             {
@@ -29,11 +30,17 @@ namespace TestCellHandshake.MqttService.MqttClient.PayloadParsers
                     _logger.LogError("Unable to parse payload. Values is not an array.");
                     throw new Exception("Unable to parse payload. Values is not an array.");
                 }
-                var value = values.EnumerateArray().First();
-                parsedPayload.TagAddress = value.GetProperty("id");
-                parsedPayload.Value = value.GetProperty("v");
 
-                return parsedPayload;
+                // The array can potentially contain multiple elements and there is no telling how many
+                foreach (var value in values.EnumerateArray())
+                {
+                    parsedPayload.TagAddress = value.GetProperty("id");
+                    parsedPayload.Value = value.GetProperty("v");
+
+                    parsedPayloadList.Add(parsedPayload);
+                }
+
+                return parsedPayloadList;
             }
             catch (Exception ex)
             {

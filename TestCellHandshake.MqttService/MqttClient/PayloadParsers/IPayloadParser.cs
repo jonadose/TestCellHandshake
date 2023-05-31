@@ -2,6 +2,6 @@
 {
     public interface IPayloadParser
     {
-        ParsedPayload ParsePayloadSegment(ReadOnlyMemory<byte> payloadSegment);
+        List<ParsedPayload> ParsePayloadSegment(ReadOnlyMemory<byte> payloadSegment);
     }
 }

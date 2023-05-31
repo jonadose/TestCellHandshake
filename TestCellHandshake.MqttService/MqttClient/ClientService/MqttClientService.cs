@@ -10,7 +10,7 @@ using TestCellHandshake.MqttService.MqttService.Configuration;
 
 namespace TestCellHandshake.MqttService.MqttClient.ClientService
 {
-    public class MqttClientService : IMqttClientService
+    public class MqttClientService : IMqttClientService, IDisposable
     {
         public event EventHandler ApplicationMessageReceivedAsync;
 
@@ -27,13 +27,13 @@ namespace TestCellHandshake.MqttService.MqttClient.ClientService
             _logger = logger;
             _mqttConfig = mqttConfig;
             _payloadParser = payloadParser;
-            Initialize(new MqttClientOptionsBuilder()
+            _mqttClient = Initialize(new MqttClientOptionsBuilder()
                 .WithClientId(Guid.NewGuid().ToString())
                 .WithCleanSession(true)
                 .WithTcpServer(_mqttConfig.CurrentValue.BaseUrl)
                 .Build());
 
-            _mqttClient.ApplicationMessageReceivedAsync += HandleApplicationMessageReceivedAsync;
+            _mqttClient.ApplicationMessageReceivedAsync += HandleApplicationMessageReceived;
         }
 
         public async Task ConnectAsync()
@@ -50,13 +50,13 @@ namespace TestCellHandshake.MqttService.MqttClient.ClientService
         }
 
 
-        public void Initialize(MqttClientOptions mqttClientOptions)
+        public IManagedMqttClient Initialize(MqttClientOptions mqttClientOptions)
         {
             _managedMqttClientOptions = new ManagedMqttClientOptionsBuilder()
                 .WithClientOptions(mqttClientOptions)
                 .Build();
             var factory = new MqttFactory();
-            _mqttClient = factory.CreateManagedMqttClient();
+            return _mqttClient = factory.CreateManagedMqttClient();
         }
 
         public bool IsConnected()
@@ -93,22 +93,35 @@ namespace TestCellHandshake.MqttService.MqttClient.ClientService
             }
         }
 
-        public void MethodThatTakesAction(Func<MqttApplicationMessageReceivedEventArgs, Task> func)
-        {
-            ArgumentNullException.ThrowIfNull(_mqttClient);
-            _mqttClient.ApplicationMessageReceivedAsync += func;
-        }
-
-        public Task HandleApplicationMessageReceivedAsync(MqttApplicationMessageReceivedEventArgs eventArgs)
+        public Task HandleApplicationMessageReceived(MqttApplicationMessageReceivedEventArgs eventArgs)
         {
             DateTime currentTime = DateTime.Now;
             string formattedTime = currentTime.ToString("HH:mm:ss.fff");
             _logger.LogInformation($"Received application message from topic: {eventArgs.ApplicationMessage.Topic}. Timestamp: {formattedTime}.");
             _logger.LogInformation("Payload: " + Encoding.UTF8.GetString(eventArgs.ApplicationMessage.PayloadSegment));
 
-            var payload = _payloadParser.ParsePayloadSegment(eventArgs.ApplicationMessage.PayloadSegment);
-            _logger.LogInformation("Parsed payload.TagAddress: {address}, value : {value}", payload.TagAddress, payload.Value);
+            var payloadList = _payloadParser.ParsePayloadSegment(eventArgs.ApplicationMessage.PayloadSegment);
+
+            foreach (var payload in payloadList)
+            {
+                _logger.LogInformation("Parsed payload.TagAddress: {address}, value : {value}", payload.TagAddress, payload.Value);
+            }
+
             return Task.CompletedTask;
+        }
+
+
+        public void MethodThatTakesAction(Func<MqttApplicationMessageReceivedEventArgs, Task> func)
+        {
+            ArgumentNullException.ThrowIfNull(_mqttClient);
+            _mqttClient.ApplicationMessageReceivedAsync += func;
+
+        }
+
+
+        public void Dispose()
+        {
+            _mqttClient?.Dispose();
         }
     }
 }
