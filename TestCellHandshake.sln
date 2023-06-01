@@ -9,6 +9,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestCellHandshake.MqttServi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MqttBroker", "MqttBroker\MqttBroker.csproj", "{425F97D6-EC73-4B05-82DF-8C09ADCEDA9C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{FDF4DCBC-8D7A-42ED-BB76-7F04BD2B183A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestCellHandshake.UnitTests", "TestCellHandshake.UnitTests\TestCellHandshake.UnitTests.csproj", "{725C3AB4-1938-47AC-A479-C931560881DD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,9 +31,16 @@ Global
 		{425F97D6-EC73-4B05-82DF-8C09ADCEDA9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{425F97D6-EC73-4B05-82DF-8C09ADCEDA9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{425F97D6-EC73-4B05-82DF-8C09ADCEDA9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{725C3AB4-1938-47AC-A479-C931560881DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{725C3AB4-1938-47AC-A479-C931560881DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{725C3AB4-1938-47AC-A479-C931560881DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{725C3AB4-1938-47AC-A479-C931560881DD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{725C3AB4-1938-47AC-A479-C931560881DD} = {FDF4DCBC-8D7A-42ED-BB76-7F04BD2B183A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0A187B44-42FA-4798-97BE-9EF4EE581843}
