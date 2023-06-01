@@ -10,7 +10,6 @@ namespace TestCellHandshake.MqttService.MqttClient
     public class LineControllerClient : BackgroundService
     {
         private readonly ILogger<LineControllerClient> _logger;
-
         private readonly IMqttClientService _mqttClientService;
         private readonly ILogicHandlingService _logicHandlingService;
 
@@ -30,6 +29,9 @@ namespace TestCellHandshake.MqttService.MqttClient
 
             try
             {
+                // Link the client service to the correct method to call when an event is triggered
+                _mqttClientService.MethodThatTakesAction(MethodToHandleEvent);
+
                 // Connect to mqtt broker
                 await _mqttClientService.ConnectAsync();
 
@@ -39,13 +41,10 @@ namespace TestCellHandshake.MqttService.MqttClient
                 }
 
                 // Subscribe to topic
-                await _mqttClientService.SubscribeAsync("iotgateway/linecontroller");
+                await _mqttClientService.SubscribeAsync("iotgateway/testcell");
 
-                while (!stoppingToken.IsCancellationRequested)
-                {
-                    await Task.Delay(Timeout.Infinite, stoppingToken);
-                    await _mqttClientService.UnsubscribeAsync("iotgateway/linecontroller");
-                }
+                await Task.Delay(Timeout.Infinite, stoppingToken);
+                await _mqttClientService.UnsubscribeAsync("iotgateway/testcell");
             }
             catch (Exception ex)
             {
@@ -54,13 +53,19 @@ namespace TestCellHandshake.MqttService.MqttClient
         }
 
 
-        public void MethodToHandleEvent(MqttApplicationMessageReceivedEventArgs args)
+        public Task MethodToHandleEvent(MqttApplicationMessageReceivedEventArgs args)
         {
-            _logger.LogInformation($"Message received: {Encoding.UTF8.GetString(args.ApplicationMessage.PayloadSegment)}");
-            _logicHandlingService.HandleApplicationMessageReceived(args);
-
-            //_mqttClientService.MethodThatTakesAction();
+            try
+            {
+                _logger.LogInformation($"Message received: {Encoding.UTF8.GetString(args.ApplicationMessage.PayloadSegment)}");
+                _logicHandlingService.HandleApplicationMessageReceived(args);
+                return Task.CompletedTask;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while handling the MQTT application message.");
+                throw;
+            }
         }
-
     }
 }

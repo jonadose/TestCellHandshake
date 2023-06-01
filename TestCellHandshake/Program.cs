@@ -5,6 +5,7 @@ using TestCellHandshake.MqttService.Channels.TestCell;
 using TestCellHandshake.MqttService.MqttClient;
 using TestCellHandshake.MqttService.MqttClient.ClientService;
 using TestCellHandshake.MqttService.MqttClient.PayloadParsers;
+using TestCellHandshake.MqttService.MqttClient.Service;
 using TestCellHandshake.MqttService.MqttService.Configuration;
 using TestCellHandshake.MqttService.MqttService.Service;
 using TestCellHandshake.MqttService.MqttService.Workers;
@@ -30,6 +31,9 @@ builder.Services.AddTransient<IMqttClientService, MqttClientService>();
 builder.Services.AddHostedService<MqttLineControllerWorker>();
 builder.Services.AddHostedService<MainWorker>();
 builder.Services.AddHostedService<LineControllerClient>();
+
+// Line Controller Logic Services
+builder.Services.AddTransient<ILogicHandlingService, LogicHandlingService>();
 
 // Mqtt Test Cell Services
 builder.Services.AddSingleton<ITestCellChannel, TestCellChannel>();

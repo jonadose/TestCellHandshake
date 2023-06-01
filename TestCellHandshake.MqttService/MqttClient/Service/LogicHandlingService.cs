@@ -1,13 +1,20 @@
-﻿using MQTTnet.Client;
+﻿using Microsoft.Extensions.Logging;
+using MQTTnet.Client;
 using System.Text;
+using TestCellHandshake.MqttService.MqttClient.PayloadParsers;
 
 namespace TestCellHandshake.MqttService.MqttClient.Service
 {
-    public class LogicHandlingService
+    public class LogicHandlingService : ILogicHandlingService
     {
-        public LogicHandlingService()
-        {
+        private readonly ILogger<LogicHandlingService> _logger;
+        private readonly IPayloadParser _payloadParser;
 
+        public LogicHandlingService(ILogger<LogicHandlingService> logger,
+            IPayloadParser payloadParser)
+        {
+            _logger = logger;
+            _payloadParser = payloadParser;
         }
 
 
