@@ -29,7 +29,7 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
 
             foreach (var payload in payloadList)
             {
-                _logger.LogInformation("Parsed payload.TagAddress: {address}, value : {value}", payload.TagAddress, payload.Value);
+                _logger.LogInformation("TagAddress: {address}, value : {value}", payload.TagAddress, payload.Value);
             }
         }
     }

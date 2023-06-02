@@ -25,17 +25,36 @@ POST https://localhost:7074/TestCell/ScannedDataCommand
 Content-Type application/json
 
 {
-  "scannedData": "UpdatedString"
+  "scannedData": "136gb1234DG0071234"
 }
 
  
+###
+
+POST https://localhost:7074/TestCell/ScannedDataCommand
+Content-Type application/json
+
+{
+  "scannedData": "136gb1234DG0071235"
+}
+
+
+
+
+
+
+
+
+
+
+
 ###
 
 POST https://localhost:7074/LineController/DeviceIdCommand
 Content-Type application/json
 
 {
-  "deviceID": "136gb192384"
+  "deviceID": "136gb1234DG0071234"
 }
 
  
