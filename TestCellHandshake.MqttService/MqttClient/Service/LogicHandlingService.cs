@@ -1,9 +1,15 @@
 ﻿using Microsoft.Extensions.Logging;
 using MQTTnet.Client;
+using System.ComponentModel;
 using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks.Dataflow;
 using System.Xml.Serialization;
+using TestCellHandshake.MqttService.Channels.LineController;
+using TestCellHandshake.MqttService.Commands.LineController;
+using TestCellHandshake.MqttService.MqttClient.ClientService;
 using TestCellHandshake.MqttService.MqttClient.PayloadParsers;
+using TestCellHandshake.MqttService.MqttClient.Service.Models;
 
 namespace TestCellHandshake.MqttService.MqttClient.Service
 {
@@ -11,6 +17,8 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
     {
         private readonly ILogger<LogicHandlingService> _logger;
         private readonly IPayloadParser _payloadParser;
+        private readonly IMainMqttCommandChannel _mainMqttCommandChannel;
+
 
         private const string _reqNewDataTagAddress = "TestCell.Tester.PLC.DataBlocksGlobal.DataLC.Cell.Data.ReqNewData";
         private const string _scannedDataTagAddress = "TestCell.Tester.PLC.DataBlocksGlobal.DataLC.Cell.Data.ScannedData";
@@ -19,14 +27,16 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
         private bool IsScannedDataReady { get; set; } = false;
 
         public LogicHandlingService(ILogger<LogicHandlingService> logger,
-            IPayloadParser payloadParser)
+            IPayloadParser payloadParser,
+            IMainMqttCommandChannel mainMqttCommandChannel)
         {
             _logger = logger;
             _payloadParser = payloadParser;
+            _mainMqttCommandChannel = mainMqttCommandChannel;
         }
 
 
-        public void HandleApplicationMessageReceived(MqttApplicationMessageReceivedEventArgs eventArgs)
+        public async Task HandleApplicationMessageReceived(MqttApplicationMessageReceivedEventArgs eventArgs)
         {
             DateTime currentTime = DateTime.Now;
             string formattedTime = currentTime.ToString("HH:mm:ss.fff");
@@ -34,12 +44,60 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
             _logger.LogInformation("Payload: " + Encoding.UTF8.GetString(eventArgs.ApplicationMessage.PayloadSegment));
 
             var payloadList = _payloadParser.ParsePayloadSegment(eventArgs.ApplicationMessage.PayloadSegment);
-            HandlePayloadList(payloadList);
+            PowerUnit powerunit = HandlePayloadList(payloadList);
+
+            if (powerunit is null)
+            {
+                _logger.LogInformation("Powerunit is null. Returning.");
+            }
+            else
+            {
+                ArgumentNullException.ThrowIfNull(powerunit);
+                _logger.LogInformation("Powerunit is not null. Publishing to channel.");
+
+                await PublishDeviceID(powerunit?.DeviceID);
+                await PublishDeviceType(powerunit.DeviceType);
+                await PublishDeviceDestination(powerunit.DeviceDestination);
+                await PublishDeviceNewDataRec(powerunit.NewDataRec);
+            }
         }
 
 
-        private void HandlePayloadList(List<ParsedPayload> parsedPayloadList)
+        private async Task PublishDeviceID(string? deviceID)
         {
+            ArgumentNullException.ThrowIfNull(deviceID);
+            DeviceIdCommand deviceIdCommand = new() { DeviceID = deviceID };
+            await _mainMqttCommandChannel.AddCommandAsync(deviceIdCommand);
+        }
+
+
+        private async Task PublishDeviceType(int deviceType)
+        {
+            DeviceTypeCommand deviceTypeCommand = new() { DeviceType = deviceType };
+            await _mainMqttCommandChannel.AddCommandAsync(deviceTypeCommand);
+        }
+
+
+        private async Task PublishDeviceDestination(int deviceDestination)
+        {
+            ArgumentNullException.ThrowIfNull(deviceDestination);
+            DeviceDestinationCommand deviceDestinationCommand = new() { DeviceDest = deviceDestination };
+            await _mainMqttCommandChannel.AddCommandAsync(deviceDestinationCommand);
+        }
+
+
+        private async Task PublishDeviceNewDataRec(bool newDataRec)
+        {
+            ArgumentNullException.ThrowIfNull(newDataRec);
+            NewDataRecCommand newDataRecCommand = new() { NewDataRec = newDataRec };
+            await _mainMqttCommandChannel.AddCommandAsync(newDataRecCommand);
+        }
+
+
+        private PowerUnit HandlePayloadList(List<ParsedPayload> parsedPayloadList)
+        {
+            PowerUnit powerUnit = new();
+
             foreach (var payload in parsedPayloadList)
             {
                 _logger.LogInformation("TagAddress: {address}, value : {value}", payload.TagAddress, payload.Value);
@@ -53,11 +111,12 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
                     if (IsScannedDataReady)
                     {
                         ResetControlFlags();
-                        QueryMEforPowerunitData();
+                        powerUnit = QueryMEforPowerunitData();
                     }
                     else
                     {
                         _logger.LogInformation("Scanned data tag not ready yet.");
+                        return null;
                     }
                 }
                 if (payload.TagAddress.ToString() == _scannedDataTagAddress)
@@ -69,14 +128,17 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
                     if (IsReqNewDataReady)
                     {
                         ResetControlFlags();
-                        QueryMEforPowerunitData();
+                        powerUnit = QueryMEforPowerunitData();
                     }
                     else
                     {
                         _logger.LogInformation("ReqNewData tag not ready yet.");
+                        return null;
                     }
                 }
             }
+
+            return powerUnit;
         }
 
 
@@ -98,9 +160,22 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
         }
 
 
-        private void QueryMEforPowerunitData()
+        private PowerUnit QueryMEforPowerunitData()
         {
             _logger.LogInformation("Querying ME for powerunit data.");
+
+            PowerUnit powerunitFromMe = new()
+            {
+                DeviceID = "136gb1234DG0071234",
+                DeviceType = 2,
+                DeviceDestination = 3,
+                NewDataRec = true
+            };
+
+            _logger.LogInformation("Powerunit data received from ME: {powerunitFromMe}", nameof(powerunitFromMe));
+            _logger.LogInformation("DeviceID: {DeviceID} \n DeviceType: {DeviceType} \n DeviceDestination: {DeviceDestination} \n NewDataRec: {NewDataRec}",
+                powerunitFromMe.DeviceID, powerunitFromMe.DeviceType, powerunitFromMe.DeviceDestination, powerunitFromMe.NewDataRec);
+            return powerunitFromMe;
         }
 
 

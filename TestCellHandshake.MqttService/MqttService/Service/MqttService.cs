@@ -97,6 +97,7 @@ namespace TestCellHandshake.MqttService.MqttService.Service
             await EnqueueAsync(message);
         }
 
+
         public async Task SubscribeAsync(string topic)
         {
             ArgumentNullException.ThrowIfNull(_mqttClient);
