@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using MQTTnet.Client;
 using System.ComponentModel;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks.Dataflow;
@@ -25,6 +26,10 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
 
         private bool IsReqNewDataReady { get; set; } = false;
         private bool IsScannedDataReady { get; set; } = false;
+        private bool IsHandshakeInProgress { get; set; } = false;
+        private bool AbortHandshake { get; set; } = false;
+
+        private PowerUnit _powerUnit;
 
         public LogicHandlingService(ILogger<LogicHandlingService> logger,
             IPayloadParser payloadParser,
@@ -44,22 +49,46 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
             _logger.LogInformation("Payload: " + Encoding.UTF8.GetString(eventArgs.ApplicationMessage.PayloadSegment));
 
             var payloadList = _payloadParser.ParsePayloadSegment(eventArgs.ApplicationMessage.PayloadSegment);
-            PowerUnit powerunit = HandlePayloadList(payloadList);
 
-            if (powerunit is null)
+            if (IsHandshakeInProgress && !AbortHandshake)
+            {
+                await HandlePayloadHandshakeInProgress(payloadList);
+            }
+
+            if (IsHandshakeInProgress && AbortHandshake)
+            {
+                IsHandshakeInProgress = false;
+                AbortHandshake = false;
+                _logger.LogInformation("Handshake aborted. Returning.");
+            }
+            else
+            {
+                _powerUnit = HandlePayloadList(payloadList);
+            }
+
+            if (_powerUnit is null)
             {
                 _logger.LogInformation("Powerunit is null. Returning.");
             }
             else
             {
-                ArgumentNullException.ThrowIfNull(powerunit);
+                ArgumentNullException.ThrowIfNull(_powerUnit);
                 _logger.LogInformation("Powerunit is not null. Publishing to channel.");
 
-                await PublishDeviceID(powerunit?.DeviceID);
-                await PublishDeviceType(powerunit.DeviceType);
-                await PublishDeviceDestination(powerunit.DeviceDestination);
-                await PublishDeviceNewDataRec(powerunit.NewDataRec);
+                await PublishDeviceID(_powerUnit?.DeviceID);
+                await PublishDeviceType(_powerUnit.DeviceType);
+                await PublishDeviceDestination(_powerUnit.DeviceDestination);
+                await PublishDeviceNewDataRec(_powerUnit.NewDataRec);
+
+                // clear the _powerunit
+                _powerUnit = null;
             }
+        }
+
+        public void ResetHandshake()
+        {
+            IsHandshakeInProgress = false;
+            AbortHandshake = true;
         }
 
 
@@ -112,6 +141,7 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
                     {
                         ResetControlFlags();
                         powerUnit = QueryMEforPowerunitData();
+                        IsHandshakeInProgress = true;
                     }
                     else
                     {
@@ -129,6 +159,7 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
                     {
                         ResetControlFlags();
                         powerUnit = QueryMEforPowerunitData();
+                        IsHandshakeInProgress = true;
                     }
                     else
                     {
@@ -139,6 +170,29 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
             }
 
             return powerUnit;
+        }
+
+
+        private async Task HandlePayloadHandshakeInProgress(List<ParsedPayload> parsedPayloadList)
+        {
+            _logger.LogInformation("Handshake in progress.");
+
+            foreach (var payload in parsedPayloadList)
+            {
+                if (payload.TagAddress.ToString() == _reqNewDataTagAddress)
+                {
+                    _logger.LogInformation("TestCellHandshake tag {address} found. Value: {value}", payload.TagAddress, payload.Value);
+                    _logger.LogInformation("Will set the NewDataRec to false");
+                    await PublishDeviceNewDataRec(false);
+
+                    // Reset the HandshakeInProgress flag
+                    ResetHandshake();
+                }
+                else
+                {
+                    _logger.LogInformation("No action for this address: {address}.", payload.TagAddress);
+                }
+            }
         }
 
 

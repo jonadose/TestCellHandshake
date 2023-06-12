@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using TestCellHandshake.MqttService.Channels.LineController;
 using TestCellHandshake.MqttService.Commands.LineController;
+using TestCellHandshake.MqttService.MqttClient.Service;
 using TestCellHandshake.MqttService.MqttService.Service;
 
 namespace TestCellHandshake.MqttService.MqttService.Workers
@@ -12,14 +13,17 @@ namespace TestCellHandshake.MqttService.MqttService.Workers
         private readonly ILogger<MqttLineControllerWorker> _logger;
         private readonly IMqttService _mqttService;
         private readonly IMainMqttCommandChannel _mainMqttCommandChannel;
+        private readonly ILogicHandlingService _logicHandlingService;
 
         public MqttLineControllerWorker(ILogger<MqttLineControllerWorker> logger,
             IMqttService mqttService,
-            IMainMqttCommandChannel mainMqttCommandChannel)
+            IMainMqttCommandChannel mainMqttCommandChannel,
+            ILogicHandlingService logicHandlingService)
         {
             _logger = logger;
             _mqttService = mqttService;
             _mainMqttCommandChannel = mainMqttCommandChannel;
+            _logicHandlingService = logicHandlingService;
         }
 
 
@@ -46,6 +50,7 @@ namespace TestCellHandshake.MqttService.MqttService.Workers
                     DeviceTypeCommand => PublishDeviceType(message as DeviceTypeCommand),
                     DeviceDestinationCommand => PublishDeviceDestination(message as DeviceDestinationCommand),
                     NewDataRecCommand => PublishNewDataRec(message as NewDataRecCommand),
+                    ResetCommand => Reset(message as ResetCommand),
                     _ => throw new NotImplementedException()
                 };
             }
@@ -53,6 +58,45 @@ namespace TestCellHandshake.MqttService.MqttService.Workers
             // Wait forever to stop background service and then clear out the list
             await Task.Delay(Timeout.Infinite, stoppingToken);
             await _mqttService.UnsubscribeAsync("");
+        }
+
+        private async Task Reset(ResetCommand? resetCommand)
+        {
+
+            // TODO: HIS SHOULD NOT BE HERE. IT INTRODUCES A WEIRD DEPENDENCY REOMOVE IN MCC 
+            _logicHandlingService.ResetHandshake();
+
+            // Reset DeviceID 
+            var payload1 = "0";
+            string topic1 = "TestCell/Tester/PLC/DataBlocksGlobal/DataLC/LC/Prg/Data";
+            string tagAddress1 = "\"TestCell.Tester.PLC.DataBlocksGlobal.DataLC.LC.Prg.Data.DeviceID\"";
+            string payloadKepwareFormat1 = $"[{{ \"id\": {tagAddress1},\"v\": {payload1}}}]";
+
+            await _mqttService.PublishAsync(topic1, payloadKepwareFormat1);
+
+            // Reset DeviceType
+            var payload2 = 0;
+            string topic2 = "TestCell/Tester/PLC/DataBlocksGlobal/DataLC/LC/Prg/Data";
+            string tagAddress2 = "\"TestCell.Tester.PLC.DataBlocksGlobal.DataLC.LC.Prg.Data.DeviceType\"";
+            string payloadKepwareFormat2 = $"[{{ \"id\": {tagAddress2},\"v\": {payload2}}}]";
+
+            await _mqttService.PublishAsync(topic2, payloadKepwareFormat2);
+
+            // Reset DeviceDestination
+            var payload3 = 0;
+            string topic3 = "TestCell/Tester/PLC/DataBlocksGlobal/DataLC/LC/Prg/Data";
+            string tagAddress3 = "\"TestCell.Tester.PLC.DataBlocksGlobal.DataLC.LC.Prg.Data.DeviceDest\"";
+            string payloadKepwareFormat3 = $"[{{ \"id\": {tagAddress3},\"v\": {payload3}}}]";
+
+            await _mqttService.PublishAsync(topic3, payloadKepwareFormat3);
+
+            // Reset NewDataRec
+            var payload4 = "false";
+            string topic4 = "TestCell/Tester/PLC/DataBlocksGlobal/DataLC/LC/Prg/Data";
+            string tagAddress4 = "\"TestCell.Tester.PLC.DataBlocksGlobal.DataLC.LC.Prg.Data.NewDataRec\"";
+            string payloadKepwareFormat4 = $"[{{ \"id\": {tagAddress4},\"v\": {payload4}}}]";
+
+            await _mqttService.PublishAsync(topic4, payloadKepwareFormat4);
         }
 
         private Task PublishNewDataRec(NewDataRecCommand? newDataRecCommand)

@@ -56,23 +56,7 @@ namespace TestCellHandshake.Controllers
         [HttpPost]
         public async Task ResetAllTags()
         {
-            var resetDeviceIdCommand = new DeviceIdCommand { DeviceID = "String 1" };
-            var resetDeviceTypeCommand = new DeviceTypeCommand { DeviceType = 0 };
-            var resetDeviceDestinationCommand = new DeviceDestinationCommand { DeviceDest = 0 };
-            var resetNewDataRecCommand = new NewDataRecCommand { NewDataRec = false };
-
-            List<BaseMainCommand> commandList = new()
-            {
-                resetDeviceIdCommand,
-                resetDeviceTypeCommand,
-                resetDeviceDestinationCommand,
-                resetNewDataRecCommand
-            };
-
-            foreach (var command in commandList)
-            {
-                await _mainCommandChannel.AddCommandAsync(command);
-            }
+            await _mainCommandChannel.AddCommandAsync(new ResetCommand());
         }
     }
 }

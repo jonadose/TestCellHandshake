@@ -40,9 +40,9 @@ Content-Type application/json
 
 
 
+###
 
-
-
+POST https://localhost:7074/LineController/ResetAllTags
 
 
 

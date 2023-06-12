@@ -42,9 +42,18 @@ namespace TestCellHandshake.MqttService
                     NewDataRecCommand => NewDataRecMqttCommandHandler(message as NewDataRecCommand),
                     ReqNewDataCommand => ReqNewDataMqttCommandHandler(message as ReqNewDataCommand),
                     ScannedDataCommand => ScannedDataMqttCommandHandler(message as ScannedDataCommand),
+                    ResetCommand => ResetCommandHandler(message as ResetCommand),
                     _ => throw new NotImplementedException()
                 };
             }
+        }
+
+        private async Task ResetCommandHandler(ResetCommand? resetCommand)
+        {
+            ArgumentNullException.ThrowIfNull(resetCommand);
+            _logger.LogInformation("ResetCommand {command} added to channel: {channel} and {otherChannel}", resetCommand.ToString(), nameof(_testCellChannel), nameof(_mainMqttCommandChannel));
+            await _testCellChannel.AddCommandAsync(resetCommand);
+            await _mainMqttCommandChannel.AddCommandAsync(resetCommand);
         }
 
         private Task ScannedDataMqttCommandHandler(ScannedDataCommand? scannedDataCommand)

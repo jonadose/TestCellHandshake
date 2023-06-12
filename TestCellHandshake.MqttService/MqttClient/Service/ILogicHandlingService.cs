@@ -6,5 +6,6 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
     {
 
         Task HandleApplicationMessageReceived(MqttApplicationMessageReceivedEventArgs eventArgs);
+        void ResetHandshake();
     }
 }

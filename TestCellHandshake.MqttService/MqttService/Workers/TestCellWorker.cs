@@ -2,9 +2,12 @@
 
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using TestCellHandshake.MqttService.Channels.TestCell;
+using TestCellHandshake.MqttService.Commands.LineController;
 using TestCellHandshake.MqttService.Commands.TestCell;
+using TestCellHandshake.MqttService.MqttClient.Service;
 using TestCellHandshake.MqttService.MqttService.Service;
 
 namespace TestCellHandshake.MqttService.MqttService.Workers
@@ -14,14 +17,17 @@ namespace TestCellHandshake.MqttService.MqttService.Workers
         private readonly ILogger<TestCellWorker> _logger;
         private readonly IMqttService _mqttService;
         private readonly ITestCellChannel _testCellChannel;
+        private readonly ILogicHandlingService _logicHandlingService;
 
         public TestCellWorker(ILogger<TestCellWorker> logger,
             IMqttService mqttService,
-            ITestCellChannel testCellChannel)
+            ITestCellChannel testCellChannel,
+            ILogicHandlingService logicHandlingService)
         {
             _logger = logger;
             _mqttService = mqttService;
             _testCellChannel = testCellChannel;
+            _logicHandlingService = logicHandlingService;
         }
 
 
@@ -43,12 +49,38 @@ namespace TestCellHandshake.MqttService.MqttService.Workers
                 {
                     ReqNewDataCommand => PublishReqNewData(message as ReqNewDataCommand),
                     ScannedDataCommand => PublishScannedData(message as ScannedDataCommand),
+                    ResetCommand => Reset(message as ResetCommand),
                     _ => throw new NotImplementedException()
 
                 };
 
                 await messageTask;
             }
+        }
+
+        private async Task Reset(ResetCommand? resetCommand)
+        {
+
+            // TODO: HIS SHOULD NOT BE HERE. IT INTRODUCES A WEIRD DEPENDENCY REOMOVE IN MCC 
+            _logicHandlingService.ResetHandshake();
+
+            // Reset ReqNewData
+            var payload1 = "false";
+            string topic1 = "TestCell/Tester/PLC/DataBlocksGlobal/DataLC/Cell/Data";
+            string tagAddress1 = "\"TestCell.Tester.PLC.DataBlocksGlobal.DataLC.Cell.Data.ReqNewData\"";
+            string payloadKepwareFormat1 = $"[{{\"id\": {tagAddress1},\"v\": {payload1}}}]";
+
+            await _mqttService.PublishAsync(topic1, payloadKepwareFormat1);
+
+            await Task.Delay(100);
+
+            // Reset ScannedData
+            var payload2 = "0";
+            string topic2 = "TestCell/Tester/PLC/DataBlocksGlobal/DataLC/Cell/Data";
+            string tagAddress2 = "\"TestCell.Tester.PLC.DataBlocksGlobal.DataLC.Cell.Data.ScannedData\"";
+            string payloadKepwareFormat2 = $"[{{\"id\": {tagAddress2},\"v\": {payload2}}}]";
+
+            await _mqttService.PublishAsync(topic2, payloadKepwareFormat2);
         }
 
         private Task PublishReqNewData(ReqNewDataCommand? reqNewDataCommand)
