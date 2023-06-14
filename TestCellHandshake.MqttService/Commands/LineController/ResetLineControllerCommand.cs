@@ -1,7 +1,7 @@
 ﻿
 namespace TestCellHandshake.MqttService.Commands.LineController
 {
-    public class ResetCommand : BaseMainCommand
+    public class ResetLineControllerCommand : BaseMainCommand
     {
     }
 }

@@ -52,11 +52,11 @@ namespace TestCellHandshake.Controllers
         }
 
 
-        [Route("ResetAllTags")]
+        [Route("ResetLineController")]
         [HttpPost]
-        public async Task ResetAllTags()
+        public async Task ResetLineController()
         {
-            await _mainCommandChannel.AddCommandAsync(new ResetCommand());
+            await _mainCommandChannel.AddCommandAsync(new ResetLineControllerCommand());
         }
     }
 }

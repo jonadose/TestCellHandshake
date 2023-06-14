@@ -49,7 +49,7 @@ namespace TestCellHandshake.MqttService.MqttService.Workers
                 {
                     ReqNewDataCommand => PublishReqNewData(message as ReqNewDataCommand),
                     ScannedDataCommand => PublishScannedData(message as ScannedDataCommand),
-                    ResetCommand => Reset(message as ResetCommand),
+                    ResetTestCellCommand => Reset(message as ResetTestCellCommand),
                     _ => throw new NotImplementedException()
 
                 };
@@ -58,7 +58,7 @@ namespace TestCellHandshake.MqttService.MqttService.Workers
             }
         }
 
-        private async Task Reset(ResetCommand? resetCommand)
+        private async Task Reset(ResetTestCellCommand? resetCommand)
         {
 
             // TODO: HIS SHOULD NOT BE HERE. IT INTRODUCES A WEIRD DEPENDENCY REOMOVE IN MCC 

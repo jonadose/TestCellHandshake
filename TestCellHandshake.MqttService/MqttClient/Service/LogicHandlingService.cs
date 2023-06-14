@@ -134,11 +134,12 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
             foreach (var payload in parsedPayloadList)
             {
                 _logger.LogInformation("TagAddress: {address}, value : {value}", payload.TagAddress, payload.Value);
+                var reqNewDataValue = ConvertPayloadValueToBool(payload.Value);
 
-                if (payload.TagAddress.ToString() == _reqNewDataTagAddress)
+                if (payload.TagAddress.ToString() == _reqNewDataTagAddress && reqNewDataValue == true)
                 {
                     _logger.LogInformation("TestCellHandshake tag {address} found. Value: {value}", payload.TagAddress, payload.Value);
-                    IsReqNewDataReady = ConvertPayloadValueToBool(payload.Value);
+                    IsReqNewDataReady = reqNewDataValue;
 
                     // check if the scanned data tag is ready yet
                     if (IsScannedDataReady)
@@ -152,6 +153,11 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
                         _logger.LogInformation("Scanned data tag not ready yet.");
                         return null;
                     }
+                }
+                else if (payload.TagAddress.ToString() == _reqNewDataTagAddress && reqNewDataValue == false)
+                {
+                    _logger.LogInformation("{tag} is {value}", payload.TagAddress, payload.Value);
+                    return null;
                 }
 
                 if (payload.TagAddress.ToString() == _scannedDataTagAddress && payload.Value.ToString().Length > 1)

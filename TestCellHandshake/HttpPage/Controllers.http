@@ -42,10 +42,12 @@ Content-Type application/json
 
 ###
 
-POST https://localhost:7074/LineController/ResetAllTags
+POST https://localhost:7074/LineController/ResetLineController
 
 
+###
 
+POST https://localhost:7074/TestCell/ResetTestCell
 
 
 ###

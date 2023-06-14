@@ -50,7 +50,7 @@ namespace TestCellHandshake.MqttService.MqttService.Workers
                     DeviceTypeCommand => PublishDeviceType(message as DeviceTypeCommand),
                     DeviceDestinationCommand => PublishDeviceDestination(message as DeviceDestinationCommand),
                     NewDataRecCommand => PublishNewDataRec(message as NewDataRecCommand),
-                    ResetCommand => Reset(message as ResetCommand),
+                    ResetLineControllerCommand => Reset(message as ResetLineControllerCommand),
                     _ => throw new NotImplementedException()
                 };
             }
@@ -60,7 +60,7 @@ namespace TestCellHandshake.MqttService.MqttService.Workers
             await _mqttService.UnsubscribeAsync("");
         }
 
-        private async Task Reset(ResetCommand? resetCommand)
+        private async Task Reset(ResetLineControllerCommand? resetCommand)
         {
 
             // TODO: HIS SHOULD NOT BE HERE. IT INTRODUCES A WEIRD DEPENDENCY REOMOVE IN MCC 

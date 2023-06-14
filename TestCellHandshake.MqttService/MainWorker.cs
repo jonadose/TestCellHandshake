@@ -42,18 +42,25 @@ namespace TestCellHandshake.MqttService
                     NewDataRecCommand => NewDataRecMqttCommandHandler(message as NewDataRecCommand),
                     ReqNewDataCommand => ReqNewDataMqttCommandHandler(message as ReqNewDataCommand),
                     ScannedDataCommand => ScannedDataMqttCommandHandler(message as ScannedDataCommand),
-                    ResetCommand => ResetCommandHandler(message as ResetCommand),
+                    ResetTestCellCommand => ResetTestCellCommandHandler(message as ResetTestCellCommand),
+                    ResetLineControllerCommand => ResetLineControllerCommandHandler(message as ResetLineControllerCommand),
                     _ => throw new NotImplementedException()
                 };
             }
         }
 
-        private async Task ResetCommandHandler(ResetCommand? resetCommand)
+        private async Task ResetLineControllerCommandHandler(ResetLineControllerCommand? resetLineControllerCommand)
         {
-            ArgumentNullException.ThrowIfNull(resetCommand);
-            _logger.LogInformation("ResetCommand {command} added to channel: {channel} and {otherChannel}", resetCommand.ToString(), nameof(_testCellChannel), nameof(_mainMqttCommandChannel));
-            await _testCellChannel.AddCommandAsync(resetCommand);
-            await _mainMqttCommandChannel.AddCommandAsync(resetCommand);
+            ArgumentNullException.ThrowIfNull(resetLineControllerCommand);
+            _logger.LogInformation("ResetCommand {command} added to channel: {channel} and {otherChannel}", resetLineControllerCommand.ToString(), nameof(_mainMqttCommandChannel), nameof(_testCellChannel));
+            await _mainMqttCommandChannel.AddCommandAsync(resetLineControllerCommand);
+        }
+
+        private async Task ResetTestCellCommandHandler(ResetTestCellCommand? resetTestCellCommand)
+        {
+            ArgumentNullException.ThrowIfNull(resetTestCellCommand);
+            _logger.LogInformation("ResetCommand {command} added to channel: {channel} and {otherChannel}", resetTestCellCommand.ToString(), nameof(_testCellChannel), nameof(_mainMqttCommandChannel));
+            await _testCellChannel.AddCommandAsync(resetTestCellCommand);
         }
 
         private Task ScannedDataMqttCommandHandler(ScannedDataCommand? scannedDataCommand)

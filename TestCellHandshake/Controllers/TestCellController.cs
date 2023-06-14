@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TestCellHandshake.MqttService.Channels;
+using TestCellHandshake.MqttService.Commands.LineController;
 using TestCellHandshake.MqttService.Commands.TestCell;
 
 namespace TestCellHandshake.Controllers
@@ -33,6 +34,13 @@ namespace TestCellHandshake.Controllers
         {
             _logger.LogInformation("ScannedDataCommand {command} added to channel: {channel}", command.ToString(), nameof(_mainCommandChannel));
             await _mainCommandChannel.AddCommandAsync(command);
+        }
+
+        [Route("ResetTestCell")]
+        [HttpPost]
+        public async Task ResetTestCell()
+        {
+            await _mainCommandChannel.AddCommandAsync(new ResetTestCellCommand());
         }
     }
 }
