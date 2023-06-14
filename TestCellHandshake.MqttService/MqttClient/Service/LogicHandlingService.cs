@@ -1,14 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using MQTTnet.Client;
-using System.ComponentModel;
-using System.Reflection.Metadata;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks.Dataflow;
-using System.Xml.Serialization;
 using TestCellHandshake.MqttService.Channels.LineController;
 using TestCellHandshake.MqttService.Commands.LineController;
-using TestCellHandshake.MqttService.MqttClient.ClientService;
 using TestCellHandshake.MqttService.MqttClient.PayloadParsers;
 using TestCellHandshake.MqttService.MqttClient.Service.Models;
 
@@ -27,7 +22,7 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
         private bool IsReqNewDataReady { get; set; } = false;
         private bool IsScannedDataReady { get; set; } = false;
         private bool IsHandshakeInProgress { get; set; } = false;
-        private bool AbortHandshake { get; set; } = false;
+        private bool IsHandshakeAborted { get; set; } = false;
 
         private PowerUnit _powerUnit;
 
@@ -50,21 +45,31 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
 
             var payloadList = _payloadParser.ParsePayloadSegment(eventArgs.ApplicationMessage.PayloadSegment);
 
-            if (IsHandshakeInProgress && !AbortHandshake)
-            {
-                await HandlePayloadHandshakeInProgress(payloadList);
-            }
 
-            if (IsHandshakeInProgress && AbortHandshake)
+            if (IsHandshakeInProgress)
             {
-                IsHandshakeInProgress = false;
-                AbortHandshake = false;
-                _logger.LogInformation("Handshake aborted. Returning.");
+                if (IsHandshakeAborted)
+                {
+                    IsHandshakeInProgress = false;
+                    IsHandshakeAborted = false;
+                    _logger.LogInformation("Handshake aborted. Returning.");
+
+                }
+                else
+                {
+                    await HandlePayloadHandshakeInProgress(payloadList);
+                }
             }
             else
             {
-                _powerUnit = HandlePayloadList(payloadList);
+                await RespondToHandshakeRequest(payloadList);
             }
+        }
+
+
+        private async Task RespondToHandshakeRequest(List<ParsedPayload> payloadList)
+        {
+            _powerUnit = HandlePayloadList(payloadList);
 
             if (_powerUnit is null)
             {
@@ -72,10 +77,8 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
             }
             else
             {
-                ArgumentNullException.ThrowIfNull(_powerUnit);
                 _logger.LogInformation("Powerunit is not null. Publishing to channel.");
-
-                await PublishDeviceID(_powerUnit?.DeviceID);
+                await PublishDeviceID(_powerUnit.DeviceID);
                 await PublishDeviceType(_powerUnit.DeviceType);
                 await PublishDeviceDestination(_powerUnit.DeviceDestination);
                 await PublishDeviceNewDataRec(_powerUnit.NewDataRec);
@@ -85,10 +88,11 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
             }
         }
 
+
         public void ResetHandshake()
         {
             IsHandshakeInProgress = false;
-            AbortHandshake = true;
+            IsHandshakeAborted = true;
         }
 
 
@@ -149,7 +153,8 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
                         return null;
                     }
                 }
-                if (payload.TagAddress.ToString() == _scannedDataTagAddress)
+
+                if (payload.TagAddress.ToString() == _scannedDataTagAddress && payload.Value.ToString().Length > 1)
                 {
                     _logger.LogInformation("Scanned data tag {address} found. Value: {value}", payload.TagAddress, payload.Value);
                     IsScannedDataReady = true;
@@ -186,7 +191,7 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
                     await PublishDeviceNewDataRec(false);
 
                     // Reset the HandshakeInProgress flag
-                    ResetHandshake();
+                    IsHandshakeInProgress = false;
                 }
                 else
                 {
