@@ -14,6 +14,7 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
         private readonly ILogger<LogicHandlingService> _logger;
         private readonly IPayloadParser _payloadParser;
         private readonly IMainMqttCommandChannel _mainMqttCommandChannel;
+        private readonly IDeviceDestinationService _deviceDestinationService;
 
 
         private const string _reqNewDataTagAddress = "TestCell.Tester.PLC.DataBlocksGlobal.DataLC.Cell.Data.ReqNewData";
@@ -28,11 +29,13 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
 
         public LogicHandlingService(ILogger<LogicHandlingService> logger,
             IPayloadParser payloadParser,
-            IMainMqttCommandChannel mainMqttCommandChannel)
+            IMainMqttCommandChannel mainMqttCommandChannel,
+            IDeviceDestinationService deviceDestinationService)
         {
             _logger = logger;
             _payloadParser = payloadParser;
             _mainMqttCommandChannel = mainMqttCommandChannel;
+            _deviceDestinationService = deviceDestinationService;
         }
 
 
@@ -227,20 +230,7 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
 
         private PowerUnit QueryMEforPowerunitData()
         {
-            _logger.LogInformation("Querying ME for powerunit data.");
-
-            PowerUnit powerunitFromMe = new()
-            {
-                DeviceID = "136gb1234DG0071234",
-                DeviceType = 2,
-                DeviceDestination = 3,
-                NewDataRec = true
-            };
-
-            _logger.LogInformation("Powerunit data received from ME: {powerunitFromMe}", nameof(powerunitFromMe));
-            _logger.LogInformation("DeviceID: {DeviceID} \n DeviceType: {DeviceType} \n DeviceDestination: {DeviceDestination} \n NewDataRec: {NewDataRec}",
-                powerunitFromMe.DeviceID, powerunitFromMe.DeviceType, powerunitFromMe.DeviceDestination, powerunitFromMe.NewDataRec);
-            return powerunitFromMe;
+            return _deviceDestinationService.GetPowerUnit();
         }
 
 

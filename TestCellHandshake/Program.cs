@@ -34,6 +34,7 @@ builder.Services.AddHostedService<LineControllerClient>();
 
 // Line Controller Logic Services
 builder.Services.AddTransient<ILogicHandlingService, LogicHandlingService>();
+builder.Services.AddTransient<IDeviceDestinationService, DeviceDestinationService>();
 
 // Mqtt Test Cell Services
 builder.Services.AddSingleton<ITestCellChannel, TestCellChannel>();
