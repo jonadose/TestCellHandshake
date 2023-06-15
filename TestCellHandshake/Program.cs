@@ -30,7 +30,7 @@ builder.Services.AddTransient<IPayloadParser, PayloadParser>();
 builder.Services.AddTransient<IMqttClientService, MqttClientService>();
 builder.Services.AddHostedService<MqttLineControllerWorker>();
 builder.Services.AddHostedService<MainWorker>();
-builder.Services.AddHostedService<LineControllerClient>();
+builder.Services.AddHostedService<TestCellHandshakeProcessor>();
 
 // Line Controller Logic Services
 builder.Services.AddTransient<ILogicHandlingService, LogicHandlingService>();

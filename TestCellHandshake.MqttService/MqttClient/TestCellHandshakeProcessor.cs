@@ -1,21 +1,25 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using MQTTnet.Client;
+using System.Text;
 using System.Text.Json;
 using TestCellHandshake.MqttService.Channels.LineController;
 using TestCellHandshake.MqttService.Commands.LineController;
+using TestCellHandshake.MqttService.MqttClient.ClientService;
 using TestCellHandshake.MqttService.MqttClient.Service;
 using TestCellHandshake.MqttService.MqttService.Service;
+using TestCellHandshake.MqttService.MqttService.Workers;
 
-namespace TestCellHandshake.MqttService.MqttService.Workers
+namespace TestCellHandshake.MqttService.MqttClient
 {
-    public class MqttLineControllerWorker : BackgroundService
+    public class TestCellHandshakeProcessor : BackgroundService
     {
-        private readonly ILogger<MqttLineControllerWorker> _logger;
+        private readonly ILogger<TestCellHandshakeProcessor> _logger;
         private readonly IMqttService _mqttService;
         private readonly IMainMqttCommandChannel _mainMqttCommandChannel;
         private readonly ILogicHandlingService _logicHandlingService;
 
-        public MqttLineControllerWorker(ILogger<MqttLineControllerWorker> logger,
+        public TestCellHandshakeProcessor(ILogger<TestCellHandshakeProcessor> logger,
             IMqttService mqttService,
             IMainMqttCommandChannel mainMqttCommandChannel,
             ILogicHandlingService logicHandlingService)
@@ -29,35 +33,63 @@ namespace TestCellHandshake.MqttService.MqttService.Workers
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("Starting MqttLineControllerWorker");
+            _logger.LogInformation("Starting LineControllerClient");
 
-            // Connect to mqtt broker 
-            await _mqttService.ConnectAsync();
-
-            if (_mqttService.IsConnected())
+            try
             {
-                _logger.LogInformation("MqttLineControllerWorker is connected");
-            }
+                // Link the client service to the correct method to call when an event is triggered
+                _mqttService.MethodThatTakesAction(MethodToHandleEvent);
 
-            // Read from internal channel and publish mqtt message 
-            await foreach (var message in _mainMqttCommandChannel.ReadAllAsync())
-            {
-                _logger.LogInformation("Backgroundworker: {service} received message of type {type}.", nameof(MqttLineControllerWorker), message.GetType().Name);
+                // Connect to mqtt broker
+                await _mqttService.ConnectAsync();
 
-                Task messageTask = message switch
+                if (_mqttService.IsConnected())
                 {
-                    DeviceIdCommand => PublishDeviceId(message as DeviceIdCommand),
-                    DeviceTypeCommand => PublishDeviceType(message as DeviceTypeCommand),
-                    DeviceDestinationCommand => PublishDeviceDestination(message as DeviceDestinationCommand),
-                    NewDataRecCommand => PublishNewDataRec(message as NewDataRecCommand),
-                    ResetLineControllerCommand => Reset(message as ResetLineControllerCommand),
-                    _ => throw new NotImplementedException()
-                };
-            }
+                    _logger.LogInformation("MqttClientService is connected");
+                }
 
-            // Wait forever to stop background service and then clear out the list
-            await Task.Delay(Timeout.Infinite, stoppingToken);
-            await _mqttService.UnsubscribeAsync("");
+                // Subscribe to topic
+                await _mqttService.SubscribeAsync("iotgateway/testcell");
+
+                // Read from internal channel and publish mqtt message 
+                await foreach (var message in _mainMqttCommandChannel.ReadAllAsync())
+                {
+                    _logger.LogInformation("Backgroundworker: {service} received message of type {type}.", nameof(MqttLineControllerWorker), message.GetType().Name);
+
+                    Task messageTask = message switch
+                    {
+                        DeviceIdCommand => PublishDeviceId(message as DeviceIdCommand),
+                        DeviceTypeCommand => PublishDeviceType(message as DeviceTypeCommand),
+                        DeviceDestinationCommand => PublishDeviceDestination(message as DeviceDestinationCommand),
+                        NewDataRecCommand => PublishNewDataRec(message as NewDataRecCommand),
+                        ResetLineControllerCommand => Reset(message as ResetLineControllerCommand),
+                        _ => throw new NotImplementedException()
+                    };
+                }
+
+                await Task.Delay(Timeout.Infinite, stoppingToken);
+                await _mqttService.UnsubscribeAsync("iotgateway/testcell");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in LineControllerClient ExecuteAsync.");
+            }
+        }
+
+
+        public Task MethodToHandleEvent(MqttApplicationMessageReceivedEventArgs args)
+        {
+            try
+            {
+                _logger.LogInformation($"Message received: {Encoding.UTF8.GetString(args.ApplicationMessage.PayloadSegment)}");
+                _logicHandlingService.HandleApplicationMessageReceived(args);
+                return Task.CompletedTask;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while handling the MQTT application message.");
+                throw;
+            }
         }
 
         private async Task Reset(ResetLineControllerCommand? resetCommand)
