@@ -4,7 +4,7 @@ using TestCellHandshake.MqttService.Channels.LineController;
 using TestCellHandshake.MqttService.MqttClient.PayloadParsers;
 using TestCellHandshake.MqttService.MqttClient.Service;
 
-namespace TestCellHandshake.MqttService.Tests.MqttClient.Service
+namespace TestCellHandshake.UnitTests
 {
     [TestClass]
     public class LogicHandlingServiceTests
@@ -12,13 +12,19 @@ namespace TestCellHandshake.MqttService.Tests.MqttClient.Service
         private ILogicHandlingService? _logicHandlingService;
         private Mock<IPayloadParser>? _payloadParser;
         private Mock<IMainMqttCommandChannel>? _mainMqttCommandChannel;
+        private Mock<IDeviceDestinationService>? _deviceDestinationService;
 
         [TestInitialize]
         public void TestInitialize()
         {
             _payloadParser = new Mock<IPayloadParser>();
             _mainMqttCommandChannel = new Mock<IMainMqttCommandChannel>();
-            _logicHandlingService = new LogicHandlingService(new NullLogger<LogicHandlingService>(), _payloadParser.Object, _mainMqttCommandChannel.Object);
+            _deviceDestinationService = new Mock<IDeviceDestinationService>();
+            _logicHandlingService = new LogicHandlingService(
+                new NullLogger<LogicHandlingService>(),
+                _payloadParser.Object,
+                _mainMqttCommandChannel.Object,
+                _deviceDestinationService.Object);
 
         }
 

@@ -1,3 +1,4 @@
+using TestCellHandshake.ApplicationLogic;
 using TestCellHandshake.MqttService;
 using TestCellHandshake.MqttService.Channels;
 using TestCellHandshake.MqttService.Channels.LineController;
@@ -24,17 +25,21 @@ builder.Services.AddSingleton<IMqttService, MqttService>();
 builder.Services.AddSingleton<IMainCommandChannel, MainCommandChannel>();
 builder.Services.Configure<MqttConfig>(builder.Configuration.GetSection(MqttConfig.MqttSection));
 
-// Mqtt Line Controller Services
-builder.Services.AddSingleton<IMainMqttCommandChannel, MainMqttCommandChannel>();
-builder.Services.AddTransient<IPayloadParser, PayloadParser>();
+// Services to mock Test Cell Handshake Logic 
 builder.Services.AddTransient<IMqttClientService, MqttClientService>();
-builder.Services.AddHostedService<MqttLineControllerWorker>();
 builder.Services.AddHostedService<MainWorker>();
+
+// Application Services
+builder.Services.AddTransient<IPayloadParser, PayloadParser>();
+builder.Services.AddTransient<IDeviceDestinationService, DeviceDestinationService>();
+
+// Infrastructure Services
+builder.Services.AddSingleton<IMainMqttCommandChannel, MainMqttCommandChannel>();
 builder.Services.AddHostedService<TestCellHandshakeProcessor>();
 
 // Line Controller Logic Services
+builder.Services.AddHostedService<NodeVikingRobotCellProcessor>();
 builder.Services.AddTransient<ILogicHandlingService, LogicHandlingService>();
-builder.Services.AddTransient<IDeviceDestinationService, DeviceDestinationService>();
 
 // Mqtt Test Cell Services
 builder.Services.AddSingleton<ITestCellChannel, TestCellChannel>();

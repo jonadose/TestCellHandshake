@@ -5,10 +5,8 @@ using System.Text;
 using System.Text.Json;
 using TestCellHandshake.MqttService.Channels.LineController;
 using TestCellHandshake.MqttService.Commands.LineController;
-using TestCellHandshake.MqttService.MqttClient.ClientService;
 using TestCellHandshake.MqttService.MqttClient.Service;
 using TestCellHandshake.MqttService.MqttService.Service;
-using TestCellHandshake.MqttService.MqttService.Workers;
 
 namespace TestCellHandshake.MqttService.MqttClient
 {
@@ -54,7 +52,7 @@ namespace TestCellHandshake.MqttService.MqttClient
                 // Read from internal channel and publish mqtt message 
                 await foreach (var message in _mainMqttCommandChannel.ReadAllAsync())
                 {
-                    _logger.LogInformation("Backgroundworker: {service} received message of type {type}.", nameof(MqttLineControllerWorker), message.GetType().Name);
+                    _logger.LogInformation("Backgroundworker: {service} received message of type {type}.", nameof(TestCellHandshakeProcessor), message.GetType().Name);
 
                     Task messageTask = message switch
                     {

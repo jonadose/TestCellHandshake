@@ -3,7 +3,7 @@ using TestCellHandshake.MqttService.Channels;
 using TestCellHandshake.MqttService.Commands;
 using TestCellHandshake.MqttService.Commands.LineController;
 
-namespace TestCellHandshake.Controllers
+namespace TestCellHandshake.Web.Controllers
 {
     [ApiController]
     [Route("[controller]")]

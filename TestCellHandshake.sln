@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33530.505
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestCellHandshake", "TestCellHandshake\TestCellHandshake.csproj", "{B25D3619-266E-4C34-A187-704830FA1DBE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestCellHandshake.Web", "TestCellHandshake\TestCellHandshake.Web.csproj", "{B25D3619-266E-4C34-A187-704830FA1DBE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestCellHandshake.MqttService", "TestCellHandshake.MqttService\TestCellHandshake.MqttService.csproj", "{764EAA0B-41C1-4258-9938-CDBD463914B7}"
 EndProject
@@ -11,7 +11,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MqttBroker", "MqttBroker\Mq
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{FDF4DCBC-8D7A-42ED-BB76-7F04BD2B183A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestCellHandshake.UnitTests", "TestCellHandshake.UnitTests\TestCellHandshake.UnitTests.csproj", "{725C3AB4-1938-47AC-A479-C931560881DD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestCellHandshake.UnitTests", "TestCellHandshake.UnitTests\TestCellHandshake.UnitTests.csproj", "{725C3AB4-1938-47AC-A479-C931560881DD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestCellHandshake.Infrastructure", "TestCellHandshake.Infrastructure", "{ABCF310A-4691-4A4D-93E9-82C42FEFFB9B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestCellHandshake.Application", "TestCellHandshake.Application", "{B438DBF1-64F1-4502-B523-D49803B840CC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestCellHandshake.ApplicationLogic", "TestCellHandshake.ApplicationLogic\TestCellHandshake.ApplicationLogic.csproj", "{F94EF970-56FC-4998-A172-3E2CD4289568}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,12 +41,18 @@ Global
 		{725C3AB4-1938-47AC-A479-C931560881DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{725C3AB4-1938-47AC-A479-C931560881DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{725C3AB4-1938-47AC-A479-C931560881DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F94EF970-56FC-4998-A172-3E2CD4289568}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F94EF970-56FC-4998-A172-3E2CD4289568}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F94EF970-56FC-4998-A172-3E2CD4289568}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F94EF970-56FC-4998-A172-3E2CD4289568}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{764EAA0B-41C1-4258-9938-CDBD463914B7} = {ABCF310A-4691-4A4D-93E9-82C42FEFFB9B}
 		{725C3AB4-1938-47AC-A479-C931560881DD} = {FDF4DCBC-8D7A-42ED-BB76-7F04BD2B183A}
+		{F94EF970-56FC-4998-A172-3E2CD4289568} = {B438DBF1-64F1-4502-B523-D49803B840CC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0A187B44-42FA-4798-97BE-9EF4EE581843}
