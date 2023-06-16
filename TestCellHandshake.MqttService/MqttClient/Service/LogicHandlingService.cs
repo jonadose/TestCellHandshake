@@ -13,6 +13,7 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
     public class LogicHandlingService : ILogicHandlingService
     {
         private string _handshakeRequestValue;
+        private HandshakeRequest _handshakeRequest;
 
         private readonly ILogger<LogicHandlingService> _logger;
         private readonly IPayloadParser _payloadParser;
@@ -28,7 +29,6 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
         private bool IsHandshakeInProgress { get; set; } = false;
         private bool IsHandshakeAborted { get; set; } = false;
 
-        private PowerUnit _powerUnit;
 
         public LogicHandlingService(ILogger<LogicHandlingService> logger,
             IPayloadParser payloadParser,
@@ -75,22 +75,24 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
 
         private async Task RespondToHandshakeRequest(List<ParsedPayload> payloadList)
         {
-            _powerUnit = HandlePayloadList(payloadList);
+            _handshakeRequest = HandlePayloadList(payloadList);
 
-            if (_powerUnit is null)
+            if (_handshakeRequest is null)
             {
-                _logger.LogInformation("Powerunit is null. Returning.");
+                _logger.LogInformation("Handshake request is null. Returning.");
             }
             else
             {
                 _logger.LogInformation("Powerunit is not null. Publishing to channel.");
-                await PublishDeviceID(_powerUnit.DeviceID);
-                await PublishDeviceType(_powerUnit.DeviceType);
-                await PublishDeviceDestination(_powerUnit.DeviceDestination);
-                await PublishDeviceNewDataRec(_powerUnit.NewDataRec);
+                await PublishDeviceID(_handshakeRequest.PowerUnitId);
 
-                // clear the _powerunit
-                _powerUnit = null;
+                // THis logic will be moved to the NodeVikingRobotCellProcessor into the application layer
+                //await PublishDeviceType(_powerUnit.DeviceType);
+                //await PublishDeviceDestination(_powerUnit.DeviceDestination);
+                //await PublishDeviceNewDataRec(_powerUnit.NewDataRec);
+
+                // clear the _handshakeRequest
+                _handshakeRequest = null;
             }
         }
 
