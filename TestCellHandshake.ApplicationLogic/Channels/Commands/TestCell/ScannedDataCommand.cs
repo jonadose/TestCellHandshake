@@ -1,5 +1,4 @@
-﻿
-namespace TestCellHandshake.MqttService.Commands.TestCell
+﻿namespace TestCellHandshake.ApplicationLogic.Channels.Commands.TestCell
 {
     public class ScannedDataCommand : BaseMainCommand
     {

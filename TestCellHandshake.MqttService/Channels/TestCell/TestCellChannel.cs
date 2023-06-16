@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Channels;
 using System.Threading.Tasks;
-using TestCellHandshake.MqttService.Commands;
+using TestCellHandshake.ApplicationLogic.Channels.Commands;
 
 namespace TestCellHandshake.MqttService.Channels.TestCell
 {

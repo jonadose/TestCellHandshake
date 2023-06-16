@@ -3,8 +3,8 @@ using Microsoft.Extensions.Logging;
 using MQTTnet.Client;
 using System.Text;
 using System.Text.Json;
-using TestCellHandshake.MqttService.Channels.LineController;
-using TestCellHandshake.MqttService.Commands.LineController;
+using TestCellHandshake.ApplicationLogic.Channels.Commands.LineController;
+using TestCellHandshake.ApplicationLogic.Channels.ResponseChannel;
 using TestCellHandshake.MqttService.MqttClient.Service;
 using TestCellHandshake.MqttService.MqttService.Service;
 
@@ -14,17 +14,17 @@ namespace TestCellHandshake.MqttService.MqttClient
     {
         private readonly ILogger<TestCellHandshakeProcessor> _logger;
         private readonly IMqttService _mqttService;
-        private readonly IMainMqttCommandChannel _mainMqttCommandChannel;
+        private readonly IHandshakeResponseChannel _handshakeResponseChannel;
         private readonly ILogicHandlingService _logicHandlingService;
 
         public TestCellHandshakeProcessor(ILogger<TestCellHandshakeProcessor> logger,
             IMqttService mqttService,
-            IMainMqttCommandChannel mainMqttCommandChannel,
+            IHandshakeResponseChannel handshakeResponseChannel,
             ILogicHandlingService logicHandlingService)
         {
             _logger = logger;
             _mqttService = mqttService;
-            _mainMqttCommandChannel = mainMqttCommandChannel;
+            _handshakeResponseChannel = handshakeResponseChannel;
             _logicHandlingService = logicHandlingService;
         }
 
@@ -50,7 +50,7 @@ namespace TestCellHandshake.MqttService.MqttClient
                 await _mqttService.SubscribeAsync("iotgateway/testcell");
 
                 // Read from internal channel and publish mqtt message 
-                await foreach (var message in _mainMqttCommandChannel.ReadAllAsync())
+                await foreach (var message in _handshakeResponseChannel.ReadAllAsync())
                 {
                     _logger.LogInformation("Backgroundworker: {service} received message of type {type}.", nameof(TestCellHandshakeProcessor), message.GetType().Name);
 

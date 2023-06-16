@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using TestCellHandshake.ApplicationLogic.Channels.Commands.LineController;
+using TestCellHandshake.ApplicationLogic.Channels.Commands.TestCell;
+using TestCellHandshake.ApplicationLogic.Channels.ResponseChannel;
 using TestCellHandshake.MqttService.Channels;
-using TestCellHandshake.MqttService.Channels.LineController;
 using TestCellHandshake.MqttService.Channels.TestCell;
-using TestCellHandshake.MqttService.Commands.LineController;
-using TestCellHandshake.MqttService.Commands.TestCell;
 
 namespace TestCellHandshake.MqttService
 {
@@ -12,12 +12,12 @@ namespace TestCellHandshake.MqttService
     {
         private readonly ILogger<MainWorker> _logger;
         private readonly IMainCommandChannel _mainCommandChannel;
-        private readonly IMainMqttCommandChannel _mainMqttCommandChannel;
+        private readonly IHandshakeResponseChannel _mainMqttCommandChannel;
         private readonly ITestCellChannel _testCellChannel;
 
         public MainWorker(ILogger<MainWorker> logger,
             IMainCommandChannel mainCommandChannel,
-            IMainMqttCommandChannel mainMqttCommandChannel,
+            IHandshakeResponseChannel mainMqttCommandChannel,
             ITestCellChannel testCellChannel)
         {
             _logger = logger;

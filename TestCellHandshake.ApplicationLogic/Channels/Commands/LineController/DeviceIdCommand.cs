@@ -1,4 +1,4 @@
-﻿namespace TestCellHandshake.MqttService.Commands.LineController
+﻿namespace TestCellHandshake.ApplicationLogic.Channels.Commands.LineController
 {
     public class DeviceIdCommand : BaseMainCommand
     {

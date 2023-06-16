@@ -1,9 +1,9 @@
 ﻿using System.Threading.Channels;
-using TestCellHandshake.MqttService.Commands;
+using TestCellHandshake.ApplicationLogic.Channels.Commands;
 
-namespace TestCellHandshake.MqttService.Channels.LineController
+namespace TestCellHandshake.ApplicationLogic.Channels.ResponseChannel
 {
-    public interface IMainMqttCommandChannel
+    public interface IHandshakeResponseChannel
     {
         ChannelReader<BaseMainCommand> Reader { get; }
 

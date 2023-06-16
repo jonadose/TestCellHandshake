@@ -1,15 +1,15 @@
 ﻿using System.Threading.Channels;
-using TestCellHandshake.MqttService.Commands;
+using TestCellHandshake.ApplicationLogic.Channels.Commands;
 
-namespace TestCellHandshake.MqttService.Channels.LineController
+namespace TestCellHandshake.ApplicationLogic.Channels.ResponseChannel
 {
-    public class MainMqttCommandChannel : IMainMqttCommandChannel
+    public class HandshakeResponseChannel : IHandshakeResponseChannel
     {
         public ChannelReader<BaseMainCommand> Reader => _channel.Reader;
 
         private readonly Channel<BaseMainCommand> _channel;
 
-        public MainMqttCommandChannel()
+        public HandshakeResponseChannel()
         {
             // Define and create the channel
             var options = new BoundedChannelOptions(50)

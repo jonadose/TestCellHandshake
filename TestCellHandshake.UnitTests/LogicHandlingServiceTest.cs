@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
-using TestCellHandshake.MqttService.Channels.LineController;
+using TestCellHandshake.ApplicationLogic.Channels.ResponseChannel;
 using TestCellHandshake.MqttService.MqttClient.PayloadParsers;
 using TestCellHandshake.MqttService.MqttClient.Service;
 
@@ -11,14 +11,14 @@ namespace TestCellHandshake.UnitTests
     {
         private ILogicHandlingService? _logicHandlingService;
         private Mock<IPayloadParser>? _payloadParser;
-        private Mock<IMainMqttCommandChannel>? _mainMqttCommandChannel;
+        private Mock<IHandshakeResponseChannel>? _mainMqttCommandChannel;
         private Mock<IDeviceDestinationService>? _deviceDestinationService;
 
         [TestInitialize]
         public void TestInitialize()
         {
             _payloadParser = new Mock<IPayloadParser>();
-            _mainMqttCommandChannel = new Mock<IMainMqttCommandChannel>();
+            _mainMqttCommandChannel = new Mock<IHandshakeResponseChannel>();
             _deviceDestinationService = new Mock<IDeviceDestinationService>();
             _logicHandlingService = new LogicHandlingService(
                 new NullLogger<LogicHandlingService>(),

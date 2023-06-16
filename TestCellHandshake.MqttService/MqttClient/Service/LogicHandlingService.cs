@@ -2,8 +2,9 @@
 using MQTTnet.Client;
 using System.Text;
 using System.Text.Json;
-using TestCellHandshake.MqttService.Channels.LineController;
-using TestCellHandshake.MqttService.Commands.LineController;
+using TestCellHandshake.ApplicationLogic.Channels.Commands.LineController;
+using TestCellHandshake.ApplicationLogic.Channels.Requests;
+using TestCellHandshake.ApplicationLogic.Channels.ResponseChannel;
 using TestCellHandshake.MqttService.MqttClient.PayloadParsers;
 using TestCellHandshake.MqttService.MqttClient.Service.Models;
 
@@ -11,9 +12,11 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
 {
     public class LogicHandlingService : ILogicHandlingService
     {
+        private string _handshakeRequestValue;
+
         private readonly ILogger<LogicHandlingService> _logger;
         private readonly IPayloadParser _payloadParser;
-        private readonly IMainMqttCommandChannel _mainMqttCommandChannel;
+        private readonly IHandshakeResponseChannel _handshakeRequestChannel;
         private readonly IDeviceDestinationService _deviceDestinationService;
 
 
@@ -29,12 +32,12 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
 
         public LogicHandlingService(ILogger<LogicHandlingService> logger,
             IPayloadParser payloadParser,
-            IMainMqttCommandChannel mainMqttCommandChannel,
+            IHandshakeResponseChannel mainMqttCommandChannel,
             IDeviceDestinationService deviceDestinationService)
         {
             _logger = logger;
             _payloadParser = payloadParser;
-            _mainMqttCommandChannel = mainMqttCommandChannel;
+            _handshakeRequestChannel = mainMqttCommandChannel;
             _deviceDestinationService = deviceDestinationService;
         }
 
@@ -103,14 +106,14 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
         {
             ArgumentNullException.ThrowIfNull(deviceID);
             DeviceIdCommand deviceIdCommand = new() { DeviceID = deviceID };
-            await _mainMqttCommandChannel.AddCommandAsync(deviceIdCommand);
+            await _handshakeRequestChannel.AddCommandAsync(deviceIdCommand);
         }
 
 
         private async Task PublishDeviceType(int deviceType)
         {
             DeviceTypeCommand deviceTypeCommand = new() { DeviceType = deviceType };
-            await _mainMqttCommandChannel.AddCommandAsync(deviceTypeCommand);
+            await _handshakeRequestChannel.AddCommandAsync(deviceTypeCommand);
         }
 
 
@@ -118,7 +121,7 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
         {
             ArgumentNullException.ThrowIfNull(deviceDestination);
             DeviceDestinationCommand deviceDestinationCommand = new() { DeviceDest = deviceDestination };
-            await _mainMqttCommandChannel.AddCommandAsync(deviceDestinationCommand);
+            await _handshakeRequestChannel.AddCommandAsync(deviceDestinationCommand);
         }
 
 
@@ -126,13 +129,12 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
         {
             ArgumentNullException.ThrowIfNull(newDataRec);
             NewDataRecCommand newDataRecCommand = new() { NewDataRec = newDataRec };
-            await _mainMqttCommandChannel.AddCommandAsync(newDataRecCommand);
+            await _handshakeRequestChannel.AddCommandAsync(newDataRecCommand);
         }
 
 
-        private PowerUnit HandlePayloadList(List<ParsedPayload> parsedPayloadList)
+        private HandshakeRequest HandlePayloadList(List<ParsedPayload> parsedPayloadList)
         {
-            PowerUnit powerUnit = new();
 
             foreach (var payload in parsedPayloadList)
             {
@@ -148,19 +150,17 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
                     if (IsScannedDataReady)
                     {
                         ResetControlFlags();
-                        powerUnit = QueryMEforPowerunitData();
+                        _handshakeRequestValue = payload.Value.ToString();
                         IsHandshakeInProgress = true;
                     }
                     else
                     {
                         _logger.LogInformation("Scanned data tag not ready yet.");
-                        return null;
                     }
                 }
                 else if (payload.TagAddress.ToString() == _reqNewDataTagAddress && reqNewDataValue == false)
                 {
                     _logger.LogInformation("{tag} is {value}", payload.TagAddress, payload.Value);
-                    return null;
                 }
 
                 if (payload.TagAddress.ToString() == _scannedDataTagAddress && payload.Value.ToString().Length > 1)
@@ -172,18 +172,18 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
                     if (IsReqNewDataReady)
                     {
                         ResetControlFlags();
-                        powerUnit = QueryMEforPowerunitData();
+                        _handshakeRequestValue = payload.Value.ToString();  // QueryMEforPowerunitData();
                         IsHandshakeInProgress = true;
                     }
                     else
                     {
                         _logger.LogInformation("ReqNewData tag not ready yet.");
-                        return null;
                     }
                 }
             }
 
-            return powerUnit;
+            HandshakeRequest handshakeRequest = new() { PowerUnitId = _handshakeRequestValue };
+            return handshakeRequest;
         }
 
 

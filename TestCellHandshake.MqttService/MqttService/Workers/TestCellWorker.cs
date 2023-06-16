@@ -4,9 +4,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using TestCellHandshake.ApplicationLogic.Channels.Commands.LineController;
+using TestCellHandshake.ApplicationLogic.Channels.Commands.TestCell;
 using TestCellHandshake.MqttService.Channels.TestCell;
-using TestCellHandshake.MqttService.Commands.LineController;
-using TestCellHandshake.MqttService.Commands.TestCell;
 using TestCellHandshake.MqttService.MqttClient.Service;
 using TestCellHandshake.MqttService.MqttService.Service;
 
