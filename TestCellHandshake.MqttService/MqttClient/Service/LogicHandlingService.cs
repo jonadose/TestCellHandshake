@@ -3,6 +3,7 @@ using MQTTnet.Client;
 using System.Text;
 using System.Text.Json;
 using TestCellHandshake.ApplicationLogic.Channels.Commands.LineController;
+using TestCellHandshake.ApplicationLogic.Channels.RequestChannel;
 using TestCellHandshake.ApplicationLogic.Channels.Requests;
 using TestCellHandshake.ApplicationLogic.Channels.ResponseChannel;
 using TestCellHandshake.MqttService.MqttClient.PayloadParsers;
@@ -17,7 +18,7 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
 
         private readonly ILogger<LogicHandlingService> _logger;
         private readonly IPayloadParser _payloadParser;
-        private readonly IHandshakeResponseChannel _handshakeRequestChannel;
+        private readonly IHandshakeRequestChannel _handshakeRequestChannel;
         private readonly IDeviceDestinationService _deviceDestinationService;
 
 
@@ -32,12 +33,12 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
 
         public LogicHandlingService(ILogger<LogicHandlingService> logger,
             IPayloadParser payloadParser,
-            IHandshakeResponseChannel mainMqttCommandChannel,
+            IHandshakeRequestChannel handshakeRequestChannel,
             IDeviceDestinationService deviceDestinationService)
         {
             _logger = logger;
             _payloadParser = payloadParser;
-            _handshakeRequestChannel = mainMqttCommandChannel;
+            _handshakeRequestChannel = handshakeRequestChannel;
             _deviceDestinationService = deviceDestinationService;
         }
 
@@ -83,8 +84,8 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
             }
             else
             {
-                _logger.LogInformation("Powerunit is not null. Publishing to channel.");
-                await PublishDeviceID(_handshakeRequest.PowerUnitId);
+                _logger.LogInformation("Handshake request with value: {value}. Publishing to channel.", _handshakeRequest.PowerUnitId);
+                await _handshakeRequestChannel.AddCommandAsync(_handshakeRequest);
 
                 // THis logic will be moved to the NodeVikingRobotCellProcessor into the application layer
                 //await PublishDeviceType(_powerUnit.DeviceType);
@@ -104,35 +105,27 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
         }
 
 
-        private async Task PublishDeviceID(string? deviceID)
-        {
-            ArgumentNullException.ThrowIfNull(deviceID);
-            DeviceIdCommand deviceIdCommand = new() { DeviceID = deviceID };
-            await _handshakeRequestChannel.AddCommandAsync(deviceIdCommand);
-        }
+        //private async Task PublishDeviceType(int deviceType)
+        //{
+        //    DeviceTypeCommand deviceTypeCommand = new() { DeviceType = deviceType };
+        //    await _handshakeRequestChannel.AddCommandAsync(deviceTypeCommand);
+        //}
 
 
-        private async Task PublishDeviceType(int deviceType)
-        {
-            DeviceTypeCommand deviceTypeCommand = new() { DeviceType = deviceType };
-            await _handshakeRequestChannel.AddCommandAsync(deviceTypeCommand);
-        }
+        //private async Task PublishDeviceDestination(int deviceDestination)
+        //{
+        //    ArgumentNullException.ThrowIfNull(deviceDestination);
+        //    DeviceDestinationCommand deviceDestinationCommand = new() { DeviceDest = deviceDestination };
+        //    await _handshakeRequestChannel.AddCommandAsync(deviceDestinationCommand);
+        //}
 
 
-        private async Task PublishDeviceDestination(int deviceDestination)
-        {
-            ArgumentNullException.ThrowIfNull(deviceDestination);
-            DeviceDestinationCommand deviceDestinationCommand = new() { DeviceDest = deviceDestination };
-            await _handshakeRequestChannel.AddCommandAsync(deviceDestinationCommand);
-        }
-
-
-        private async Task PublishDeviceNewDataRec(bool newDataRec)
-        {
-            ArgumentNullException.ThrowIfNull(newDataRec);
-            NewDataRecCommand newDataRecCommand = new() { NewDataRec = newDataRec };
-            await _handshakeRequestChannel.AddCommandAsync(newDataRecCommand);
-        }
+        //private async Task PublishDeviceNewDataRec(bool newDataRec)
+        //{
+        //    ArgumentNullException.ThrowIfNull(newDataRec);
+        //    NewDataRecCommand newDataRecCommand = new() { NewDataRec = newDataRec };
+        //    await _handshakeRequestChannel.AddCommandAsync(newDataRecCommand);
+        //}
 
 
         private HandshakeRequest HandlePayloadList(List<ParsedPayload> parsedPayloadList)
@@ -199,7 +192,9 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
                 {
                     _logger.LogInformation("TestCellHandshake tag {address} found. Value: {value}", payload.TagAddress, payload.Value);
                     _logger.LogInformation("Will set the NewDataRec to false");
-                    await PublishDeviceNewDataRec(false);
+
+                    // Send a CompleteHanhakeRequest to the NodeVikingRobotCellProcessor
+                    await _handshakeRequestChannel.AddCommandAsync(new CompleteHandshakeRequest()); // await PublishDeviceNewDataRec(false);
 
                     // Reset the HandshakeInProgress flag
                     IsHandshakeInProgress = false;
