@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using TestCellHandshake.ApplicationLogic.Channels.RequestChannel;
 using TestCellHandshake.ApplicationLogic.Channels.ResponseChannel;
+using TestCellHandshake.ApplicationLogic.Services;
 using TestCellHandshake.MqttService.MqttClient.PayloadParsers;
 using TestCellHandshake.MqttService.MqttClient.Service;
 

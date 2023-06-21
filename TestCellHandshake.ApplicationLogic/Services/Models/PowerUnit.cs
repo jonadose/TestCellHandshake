@@ -1,4 +1,4 @@
-﻿namespace TestCellHandshake.MqttService.MqttClient.Service.Models
+﻿namespace TestCellHandshake.ApplicationLogic.Services.Models
 {
     public class PowerUnit
     {

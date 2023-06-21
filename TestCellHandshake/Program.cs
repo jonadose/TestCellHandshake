@@ -1,5 +1,7 @@
 using TestCellHandshake.ApplicationLogic;
+using TestCellHandshake.ApplicationLogic.Channels.RequestChannel;
 using TestCellHandshake.ApplicationLogic.Channels.ResponseChannel;
+using TestCellHandshake.ApplicationLogic.Services;
 using TestCellHandshake.MqttService;
 using TestCellHandshake.MqttService.Channels;
 using TestCellHandshake.MqttService.Channels.TestCell;
@@ -32,9 +34,13 @@ builder.Services.AddHostedService<MainWorker>();
 // Application Services
 builder.Services.AddTransient<IPayloadParser, PayloadParser>();
 builder.Services.AddTransient<IDeviceDestinationService, DeviceDestinationService>();
+builder.Services.AddTransient<IBusinessLogicHandshakeService, BusinessLogicHandshakeService>();
+
+// Channels 
+builder.Services.AddSingleton<IHandshakeResponseChannel, HandshakeResponseChannel>();
+builder.Services.AddSingleton<IHandshakeRequestChannel, HandshakeRequestChannel>();
 
 // Infrastructure Services
-builder.Services.AddSingleton<IHandshakeResponseChannel, HandshakeResponseChannel>();
 builder.Services.AddHostedService<TestCellHandshakeProcessor>();
 
 // Line Controller Logic Services

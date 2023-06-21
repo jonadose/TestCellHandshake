@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
-using TestCellHandshake.MqttService.MqttClient.Service.Models;
+using TestCellHandshake.ApplicationLogic.Services.Models;
 
-namespace TestCellHandshake.MqttService.MqttClient.Service
+namespace TestCellHandshake.ApplicationLogic.Services
 {
     public class DeviceDestinationService : IDeviceDestinationService
     {
@@ -13,13 +13,13 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
         }
 
 
-        public PowerUnit GetPowerUnit()
+        public PowerUnit GetPowerUnit(string PowerUnitId)
         {
             _logger.LogInformation("Querying ME for powerunit data.");
 
             PowerUnit powerunitFromMe = new()
             {
-                DeviceID = "136gb1234DG0071234",
+                DeviceID = PowerUnitId,
                 DeviceType = 2,
                 DeviceDestination = 3,
                 NewDataRec = true
