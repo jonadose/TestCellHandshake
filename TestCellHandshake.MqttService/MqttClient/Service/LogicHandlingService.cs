@@ -55,17 +55,15 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
                 IsHandshakeAborted = false;
                 _logger.LogInformation("Handshake aborted. Returning.");
             }
+            else if (IsHandshakeInProgress)
+            {
+                await HandlePayloadHandshakeInProgress(payloadList);
+
+            }
             else
             {
-                if (IsHandshakeInProgress)
-                {
+                await RespondToHandshakeRequest(payloadList);
 
-                    await HandlePayloadHandshakeInProgress(payloadList);
-                }
-                else
-                {
-                    await RespondToHandshakeRequest(payloadList);
-                }
             }
         }
 
@@ -74,28 +72,17 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
         {
             _handshakeRequest = HandlePayloadList(payloadList);
 
-            if (_handshakeRequest is null)
+            if (_handshakeRequest is null || _handshakeRequest.PowerUnitId is null || !IsReqNewDataReady)
             {
                 _logger.LogInformation("Handshake request is null. Returning.");
+                return;
             }
-            else
-            {
-                if (_handshakeRequest.PowerUnitId is not null && IsReqNewDataReady)
-                {
-                    _logger.LogInformation("Handshake request with value: {value}. Publishing to channel.", _handshakeRequest.PowerUnitId);
-                    await _handshakeRequestChannel.AddCommandAsync(_handshakeRequest);
 
-                    // clear the _handshakeRequest
-                    _handshakeRequest = null;
-                }
-            }
-        }
+            _logger.LogInformation("Handshake request with value: {value}. Publishing to channel.", _handshakeRequest.PowerUnitId);
+            await _handshakeRequestChannel.AddCommandAsync(_handshakeRequest);
 
-
-        public void ResetHandshake()
-        {
-            IsHandshakeInProgress = false;
-            IsHandshakeAborted = true;
+            // clear the _handshakeRequest
+            _handshakeRequest = null;
         }
 
 
@@ -142,7 +129,6 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
                 // check if the scanned data tag is ready yet
                 if (IsScannedDataReady)
                 {
-                    // ResetControlFlags();
                     _handshakeRequestValue = payload.Value.ToString();
                     IsHandshakeInProgress = true;
                 }
@@ -171,7 +157,6 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
                 // check if the reqNewdata tag is ready yet
                 if (IsReqNewDataReady)
                 {
-                    //ResetControlFlags();
                     _handshakeRequestValue = payload.Value.ToString();  // QueryMEforPowerunitData();
                     IsHandshakeInProgress = true;
                 }
@@ -240,6 +225,13 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
             IsHandshakeInProgress = false;
             AreReqNewDataChecksPassed = false;
             AreScannedDataChecksPassed = false;
+        }
+
+
+        public void ResetHandshake()
+        {
+            IsHandshakeInProgress = false;
+            IsHandshakeAborted = true;
         }
     }
 }
