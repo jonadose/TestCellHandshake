@@ -238,6 +238,8 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
             IsReqNewDataReady = false;
             IsScannedDataReady = false;
             IsHandshakeInProgress = false;
+            AreReqNewDataChecksPassed = false;
+            AreScannedDataChecksPassed = false;
         }
     }
 }
