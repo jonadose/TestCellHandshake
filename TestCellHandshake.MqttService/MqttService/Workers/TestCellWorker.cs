@@ -1,8 +1,5 @@
-﻿
-
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 using TestCellHandshake.ApplicationLogic.Channels.Commands.LineController;
 using TestCellHandshake.ApplicationLogic.Channels.Commands.TestCell;
@@ -60,8 +57,6 @@ namespace TestCellHandshake.MqttService.MqttService.Workers
 
         private async Task Reset(ResetTestCellCommand? resetCommand)
         {
-
-            // TODO: HIS SHOULD NOT BE HERE. IT INTRODUCES A WEIRD DEPENDENCY REOMOVE IN MCC 
             _logicHandlingService.ResetHandshake();
 
             // Reset ReqNewData
@@ -69,9 +64,9 @@ namespace TestCellHandshake.MqttService.MqttService.Workers
             string topic1 = "TestCell/Tester/PLC/DataBlocksGlobal/DataLC/Cell/Data";
             string tagAddress1 = "\"TestCell.Tester.PLC.DataBlocksGlobal.DataLC.Cell.Data.ReqNewData\"";
             string payloadKepwareFormat1 = $"[{{\"id\": {tagAddress1},\"v\": {payload1}}}]";
-
             await _mqttService.PublishAsync(topic1, payloadKepwareFormat1);
 
+            // This delay is needed to ensure that both messages are not received at the same time in Kepware as this might cause issues. 
             await Task.Delay(100);
 
             // Reset ScannedData

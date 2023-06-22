@@ -92,8 +92,6 @@ namespace TestCellHandshake.MqttService.MqttClient
 
         private async Task Reset(ResetLineControllerCommand? resetCommand)
         {
-
-            // TODO: HIS SHOULD NOT BE HERE. IT INTRODUCES A WEIRD DEPENDENCY REOMOVE IN MCC 
             _logicHandlingService.ResetHandshake();
 
             // Reset DeviceID 

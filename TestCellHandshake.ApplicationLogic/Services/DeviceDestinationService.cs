@@ -22,7 +22,6 @@ namespace TestCellHandshake.ApplicationLogic.Services
                 DeviceID = PowerUnitId,
                 DeviceType = 2,
                 DeviceDestination = 3,
-                NewDataRec = true
             };
 
             _logger.LogInformation("Powerunit data received from ME: {powerunitFromMe}", nameof(powerunitFromMe));

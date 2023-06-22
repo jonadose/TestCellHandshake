@@ -63,7 +63,6 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
             else
             {
                 await RespondToHandshakeRequest(payloadList);
-
             }
         }
 
@@ -74,7 +73,7 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
 
             if (_handshakeRequest is null || _handshakeRequest.PowerUnitId is null || !IsReqNewDataReady)
             {
-                _logger.LogInformation("Handshake request is null. Returning.");
+                _logger.LogInformation("Handshake request is null. IsReqNewDataReady has value {1} Returning.", IsReqNewDataReady);
                 return;
             }
 
@@ -207,8 +206,8 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
             if (value.ValueKind == JsonValueKind.True)
             {
                 payloadValueBool = true;
-
             }
+
             if (value.ValueKind == JsonValueKind.False)
             {
                 payloadValueBool = false;

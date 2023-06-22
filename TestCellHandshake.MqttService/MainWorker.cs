@@ -12,7 +12,7 @@ namespace TestCellHandshake.MqttService
     {
         private readonly ILogger<MainWorker> _logger;
         private readonly IMainCommandChannel _mainCommandChannel;
-        private readonly IHandshakeResponseChannel _mainMqttCommandChannel;
+        private readonly IHandshakeResponseChannel _handshakeResponseChannel;
         private readonly ITestCellChannel _testCellChannel;
 
         public MainWorker(ILogger<MainWorker> logger,
@@ -22,7 +22,7 @@ namespace TestCellHandshake.MqttService
         {
             _logger = logger;
             _mainCommandChannel = mainCommandChannel;
-            _mainMqttCommandChannel = mainMqttCommandChannel;
+            _handshakeResponseChannel = mainMqttCommandChannel;
             _testCellChannel = testCellChannel;
         }
 
@@ -52,14 +52,14 @@ namespace TestCellHandshake.MqttService
         private async Task ResetLineControllerCommandHandler(ResetLineControllerCommand? resetLineControllerCommand)
         {
             ArgumentNullException.ThrowIfNull(resetLineControllerCommand);
-            _logger.LogInformation("ResetCommand {command} added to channel: {channel} and {otherChannel}", resetLineControllerCommand.ToString(), nameof(_mainMqttCommandChannel), nameof(_testCellChannel));
-            await _mainMqttCommandChannel.AddCommandAsync(resetLineControllerCommand);
+            _logger.LogInformation("ResetCommand {command} added to channel: {channel} and {otherChannel}", resetLineControllerCommand.ToString(), nameof(_handshakeResponseChannel), nameof(_testCellChannel));
+            await _handshakeResponseChannel.AddCommandAsync(resetLineControllerCommand);
         }
 
         private async Task ResetTestCellCommandHandler(ResetTestCellCommand? resetTestCellCommand)
         {
             ArgumentNullException.ThrowIfNull(resetTestCellCommand);
-            _logger.LogInformation("ResetCommand {command} added to channel: {channel} and {otherChannel}", resetTestCellCommand.ToString(), nameof(_testCellChannel), nameof(_mainMqttCommandChannel));
+            _logger.LogInformation("ResetCommand {command} added to channel: {channel} and {otherChannel}", resetTestCellCommand.ToString(), nameof(_testCellChannel), nameof(_handshakeResponseChannel));
             await _testCellChannel.AddCommandAsync(resetTestCellCommand);
         }
 
@@ -82,32 +82,32 @@ namespace TestCellHandshake.MqttService
         private Task NewDataRecMqttCommandHandler(NewDataRecCommand? newDataRecCommand)
         {
             ArgumentNullException.ThrowIfNull(newDataRecCommand);
-            _logger.LogInformation("NewDataRecCommand {command} added to channel: {channel}", newDataRecCommand.ToString(), nameof(_mainMqttCommandChannel));
-            _mainMqttCommandChannel.AddCommandAsync(newDataRecCommand);
+            _logger.LogInformation("NewDataRecCommand {command} added to channel: {channel}", newDataRecCommand.ToString(), nameof(_handshakeResponseChannel));
+            _handshakeResponseChannel.AddCommandAsync(newDataRecCommand);
             return Task.CompletedTask;
         }
 
         private Task DeviceDestinationMqttCommandHandler(DeviceDestinationCommand? deviceDestinationCommand)
         {
             ArgumentNullException.ThrowIfNull(deviceDestinationCommand);
-            _logger.LogInformation("DeviceDestinationCommand {command} added to channel: {channel}", deviceDestinationCommand.ToString(), nameof(_mainMqttCommandChannel));
-            _mainMqttCommandChannel.AddCommandAsync(deviceDestinationCommand);
+            _logger.LogInformation("DeviceDestinationCommand {command} added to channel: {channel}", deviceDestinationCommand.ToString(), nameof(_handshakeResponseChannel));
+            _handshakeResponseChannel.AddCommandAsync(deviceDestinationCommand);
             return Task.CompletedTask;
         }
 
         private Task DeviceTypeMqttCommandHandler(DeviceTypeCommand? deviceTypeCommand)
         {
             ArgumentNullException.ThrowIfNull(deviceTypeCommand);
-            _logger.LogInformation("DeviceTypeCommand {command} added to channel: {channel}", deviceTypeCommand.ToString(), nameof(_mainMqttCommandChannel));
-            _mainMqttCommandChannel.AddCommandAsync(deviceTypeCommand);
+            _logger.LogInformation("DeviceTypeCommand {command} added to channel: {channel}", deviceTypeCommand.ToString(), nameof(_handshakeResponseChannel));
+            _handshakeResponseChannel.AddCommandAsync(deviceTypeCommand);
             return Task.CompletedTask;
         }
 
         private Task DeviceIdMqttCommandHandler(DeviceIdCommand? deviceIdCommand)
         {
             ArgumentNullException.ThrowIfNull(deviceIdCommand);
-            _logger.LogInformation("DeviceIdCommand {command} added to channel: {channel}", deviceIdCommand.ToString(), nameof(_mainMqttCommandChannel));
-            _mainMqttCommandChannel.AddCommandAsync(deviceIdCommand);
+            _logger.LogInformation("DeviceIdCommand {command} added to channel: {channel}", deviceIdCommand.ToString(), nameof(_handshakeResponseChannel));
+            _handshakeResponseChannel.AddCommandAsync(deviceIdCommand);
             return Task.CompletedTask;
         }
     }

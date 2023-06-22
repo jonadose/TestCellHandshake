@@ -1,5 +1,4 @@
-﻿
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MQTTnet;
 using MQTTnet.Client;
@@ -8,7 +7,7 @@ using TestCellHandshake.MqttService.MqttService.Configuration;
 
 namespace TestCellHandshake.MqttService.MqttClient.ClientService
 {
-    public class MqttClientService : IMqttClientService, IDisposable
+    public class MqttClientService : IMqttClientService
     {
         private IManagedMqttClient? _mqttClient;
         private ManagedMqttClientOptions? _managedMqttClientOptions;
@@ -92,13 +91,6 @@ namespace TestCellHandshake.MqttService.MqttClient.ClientService
             ArgumentNullException.ThrowIfNull(_mqttClient);
             _mqttClient.ApplicationMessageReceivedAsync += func;
 
-        }
-
-
-        public void Dispose()
-        {
-            // TODO: Implement IDisposable properly 
-            _mqttClient?.Dispose();
         }
     }
 }
