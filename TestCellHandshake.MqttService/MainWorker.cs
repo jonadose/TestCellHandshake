@@ -17,12 +17,12 @@ namespace TestCellHandshake.MqttService
 
         public MainWorker(ILogger<MainWorker> logger,
             IMainCommandChannel mainCommandChannel,
-            IHandshakeResponseChannel mainMqttCommandChannel,
+            IHandshakeResponseChannel handshakeResponseChannel,
             ITestCellChannel testCellChannel)
         {
             _logger = logger;
             _mainCommandChannel = mainCommandChannel;
-            _handshakeResponseChannel = mainMqttCommandChannel;
+            _handshakeResponseChannel = handshakeResponseChannel;
             _testCellChannel = testCellChannel;
         }
 
