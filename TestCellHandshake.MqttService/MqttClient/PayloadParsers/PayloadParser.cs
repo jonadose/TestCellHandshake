@@ -25,7 +25,7 @@ namespace TestCellHandshake.MqttService.MqttClient.PayloadParsers
                 var values = parsedJson.GetProperty("values");
 
                 // check that values is an array and not null 
-                if (values.ValueKind != JsonValueKind.Array && values.GetArrayLength() > 0)
+                if (values.ValueKind != JsonValueKind.Array && values.GetArrayLength() < 0)
                 {
                     _logger.LogError("Unable to parse payload. Values is not an array.");
                     throw new Exception("Unable to parse payload. Values is not an array.");

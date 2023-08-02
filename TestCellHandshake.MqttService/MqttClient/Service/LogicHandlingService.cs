@@ -199,21 +199,9 @@ namespace TestCellHandshake.MqttService.MqttClient.Service
         }
 
 
-        private bool ConvertPayloadValueToBool(JsonElement value)
+        private static bool ConvertPayloadValueToBool(JsonElement value)
         {
-            bool payloadValueBool = false;
-
-            if (value.ValueKind == JsonValueKind.True)
-            {
-                payloadValueBool = true;
-            }
-
-            if (value.ValueKind == JsonValueKind.False)
-            {
-                payloadValueBool = false;
-            }
-
-            return payloadValueBool;
+            return (value.ValueKind == JsonValueKind.True);
         }
 
 

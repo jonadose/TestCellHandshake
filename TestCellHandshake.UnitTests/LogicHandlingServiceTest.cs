@@ -14,19 +14,16 @@ namespace TestCellHandshake.UnitTests
         private ILogicHandlingService? _logicHandlingService;
         private Mock<IPayloadParser>? _payloadParser;
         private Mock<IHandshakeRequestChannel>? _handshakeRequestChannel;
-        private Mock<IDeviceDestinationService>? _deviceDestinationService;
 
         [TestInitialize]
         public void TestInitialize()
         {
             _payloadParser = new Mock<IPayloadParser>();
             _handshakeRequestChannel = new Mock<IHandshakeRequestChannel>();
-            _deviceDestinationService = new Mock<IDeviceDestinationService>();
             _logicHandlingService = new LogicHandlingService(
                 new NullLogger<LogicHandlingService>(),
                 _payloadParser.Object,
-                _handshakeRequestChannel.Object,
-                _deviceDestinationService.Object);
+                _handshakeRequestChannel.Object);
 
         }
 
