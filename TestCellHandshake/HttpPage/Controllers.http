@@ -25,7 +25,7 @@ POST https://localhost:7074/TestCell/ScannedDataCommand
 Content-Type application/json
 
 {
-  "scannedData": "136gb1234DG0071234"
+  "scannedData": "136Z9514DG00062Q"
 }
 
  
@@ -35,7 +35,7 @@ POST https://localhost:7074/TestCell/ScannedDataCommand
 Content-Type application/json
 
 {
-  "scannedData": "136gb1234DG0071235"
+  "scannedData": "136B1234DEMO0123 "
 }
 
 
