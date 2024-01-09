@@ -1,7 +1,7 @@
 # For more info on HTTP files go to https://aka.ms/vs/httpfile
 
 POST https://localhost:7074/TestCell/ReqNewDataCommand
-Content-Type application/json
+Content-Type: application/json
 
 {
   "reqNewData": true
@@ -12,7 +12,7 @@ Content-Type application/json
 ###
 
 POST https://localhost:7074/TestCell/ReqNewDataCommand
-Content-Type application/json
+Content-Type: application/json
 
 {
   "reqNewData": false
@@ -22,7 +22,7 @@ Content-Type application/json
 ###
 
 POST https://localhost:7074/TestCell/ScannedDataCommand
-Content-Type application/json
+Content-Type: application/json
 
 {
   "scannedData": "136Z9514DG00062Q"
@@ -32,7 +32,7 @@ Content-Type application/json
 ###
 
 POST https://localhost:7074/TestCell/ScannedDataCommand
-Content-Type application/json
+Content-Type: application/json
 
 {
   "scannedData": "136B1234DEMO0123 "
@@ -53,7 +53,7 @@ POST https://localhost:7074/TestCell/ResetTestCell
 ###
 
 POST https://localhost:7074/LineController/DeviceIdCommand
-Content-Type application/json
+Content-Type: application/json
 
 {
   "deviceID": "136gb1234DG0071234"
@@ -64,7 +64,7 @@ Content-Type application/json
 
 
 POST https://localhost:7074/LineController/DeviceTypeCommand
-Content-Type application/json
+Content-Type:  application/json
 
 {
   "deviceType": 2
@@ -74,7 +74,7 @@ Content-Type application/json
 ###
 
 POST https://localhost:7074/LineController/DeviceDestinationCommand
-Content-Type application/json
+Content-Type: application/json
 
 {
   "deviceDest": 4
@@ -84,7 +84,7 @@ Content-Type application/json
 ###
 
 POST https://localhost:7074/LineController/NewDataRecCommand
-Content-Type application/json
+Content-Type: application/json
 
 {
   "newDataRec": true
@@ -94,7 +94,7 @@ Content-Type application/json
 ###
 
 POST https://localhost:7074/LineController/NewDataRecCommand
-Content-Type application/json
+Content-Type:  application/json
 
 {
   "newDataRec": false

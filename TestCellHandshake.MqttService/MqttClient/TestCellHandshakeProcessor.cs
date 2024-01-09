@@ -80,7 +80,8 @@ namespace TestCellHandshake.MqttService.MqttClient
             try
             {
                 _logger.LogInformation($"Message received: {Encoding.UTF8.GetString(args.ApplicationMessage.PayloadSegment)}");
-                _logicHandlingService.HandleApplicationMessageReceived(args);
+                // Disabled for debugging with MCC (to avoid sending messages from two systems) 
+                //_logicHandlingService.HandleApplicationMessageReceived(args);
                 return Task.CompletedTask;
             }
             catch (Exception ex)
